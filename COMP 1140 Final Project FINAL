@@ -1,0 +1,2965 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#Database and SQL Final Project\n",
+        "\n",
+        "##Name: Rachel Lisovskis\n",
+        "##Partner Name (Optional):\n",
+        "\n",
+        "**Make sure to \"save\" a copy of this file to your own account.**\n",
+        "\n",
+        "In this final project, you'll have the chance to design and implement a database using PostgreSQL. You'll be doing the following:\n",
+        "\n",
+        "\n",
+        "1.\tFormulate business rules\n",
+        "2.\tConstruct an ERD from a set of business rules\n",
+        "3.\tSpecify the relational schema\n",
+        "4.\tDiscuss whether this schema meets the 1N, 2N, and 3N normal forms\n",
+        "5.\tCreate the tables using SQL queries\n",
+        "6.\tRun sample SQL queries that demonstrate your ability to\n",
+        "  \n",
+        "  a.\tCreate table with primary keys and multiple data types\n",
+        "\n",
+        "  b.\tJoin tables with foreign keys\n",
+        "\n",
+        "  c.\tInsert sample data into tables\n",
+        "\n",
+        "  d.\tUpdate existing data in the table\n",
+        "\n",
+        "  e.\tDelete data from the table\n",
+        "7.\tRun sample SQL queries that demonstrate your ability to do the following:\n",
+        "\n",
+        "  a.\tSimple single table queries\n",
+        "\n",
+        "  b.\tSingle-table queries with WHERE and LIKE\n",
+        "\n",
+        "  c.\tSingle-table queries with aggregate functions\n",
+        "\n",
+        "  d.\tSingle table queries with GROUP BY\n",
+        "\n",
+        "  e.\tSingle-table queries with HAVING\n",
+        "\n",
+        "  f.\tSubqueries\n",
+        "\n",
+        "  g.\tSimple multi-table queries with JOIN\n",
+        "\n",
+        "  h.\tMore complex multi-table queries\n",
+        "\n",
+        "  i.\tThe creation of table views\n",
+        "  \n",
+        "  j.\tThe creation of indexes\n",
+        "8.\tDiscuss your process of database design and implementation using the Software Development LifeCycle Model \n",
+        "9.\tDo something unique! You could do ONE of the following, or something else:\n",
+        "\n",
+        "  a.\tBuild some indexes and analyze query performance\n",
+        "\n",
+        "  b.\tFigure out how to add a JSON column, and insert data\n",
+        "\n",
+        "  c.\tWrite a PL/SQL functions or trigger and show how to use it\n",
+        "\n",
+        "  d.\tExpand the data model to include subtypes and supertypes\n",
+        "\n",
+        "  e.\tLet your creativity shine!\n",
+        "10.\tSave this project as a portfolio-quality work to Github, which you can then share with me (and with future employers, if you would like).\n",
+        "\n",
+        "## Grading\n",
+        "The overall project is worth 100 points, with each of the 10 areas above worth 10 points each. \n",
+        "\n",
+        "\n",
+        "## Other Guidelines\n",
+        "\n",
+        "Here are the guidelines for working on the project:\n",
+        "\n",
+        "1. You CAN work with a \"team\" of up to 3. You should each submit a copy of the work to the D2L dropbox (make sure to include your partner's names!), and each of you should create your own Github account.\n",
+        "2. I encourage you to discuss the project with me (as well as with your peers and tutors). However, my expectation is that the final work done by each team represents their \"own\" work.\n"
+      ],
+      "metadata": {
+        "id": "emc3Vlnhi8NH"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#Load Postgres (Run This Cell)"
+      ],
+      "metadata": {
+        "id": "G_l6aadBOkDC"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "id": "4M1wPXuYixoq",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 1000
+        },
+        "outputId": "3786b4ce-414f-4c3f-93d2-4f039748d5f7"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "  Building wheel for wget (setup.py) ... \u001b[?25l\u001b[?25hdone\n",
+            "\u001b[K     |████████████████████████████████| 1.6 MB 7.0 MB/s \n",
+            "\u001b[?25hdebconf: unable to initialize frontend: Dialog\n",
+            "debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used. at /usr/share/perl5/Debconf/FrontEnd/Dialog.pm line 76, <> line 10.)\n",
+            "debconf: falling back to frontend: Readline\n",
+            "debconf: unable to initialize frontend: Readline\n",
+            "debconf: (This frontend requires a controlling tty.)\n",
+            "debconf: falling back to frontend: Teletype\n",
+            "dpkg-preconfigure: unable to re-open stdin: \n",
+            "Selecting previously unselected package cron.\n",
+            "(Reading database ... 124016 files and directories currently installed.)\n",
+            "Preparing to unpack .../0-cron_3.0pl1-128.1ubuntu1.2_amd64.deb ...\n",
+            "Unpacking cron (3.0pl1-128.1ubuntu1.2) ...\n",
+            "Selecting previously unselected package logrotate.\n",
+            "Preparing to unpack .../1-logrotate_3.11.0-0.1ubuntu1_amd64.deb ...\n",
+            "Unpacking logrotate (3.11.0-0.1ubuntu1) ...\n",
+            "Selecting previously unselected package netbase.\n",
+            "Preparing to unpack .../2-netbase_5.4_all.deb ...\n",
+            "Unpacking netbase (5.4) ...\n",
+            "Selecting previously unselected package postgresql-client-common.\n",
+            "Preparing to unpack .../3-postgresql-client-common_190ubuntu0.1_all.deb ...\n",
+            "Unpacking postgresql-client-common (190ubuntu0.1) ...\n",
+            "Selecting previously unselected package postgresql-client-10.\n",
+            "Preparing to unpack .../4-postgresql-client-10_10.22-0ubuntu0.18.04.1_amd64.deb ...\n",
+            "Unpacking postgresql-client-10 (10.22-0ubuntu0.18.04.1) ...\n",
+            "Selecting previously unselected package ssl-cert.\n",
+            "Preparing to unpack .../5-ssl-cert_1.0.39_all.deb ...\n",
+            "Unpacking ssl-cert (1.0.39) ...\n",
+            "Selecting previously unselected package postgresql-common.\n",
+            "Preparing to unpack .../6-postgresql-common_190ubuntu0.1_all.deb ...\n",
+            "Adding 'diversion of /usr/bin/pg_config to /usr/bin/pg_config.libpq-dev by postgresql-common'\n",
+            "Unpacking postgresql-common (190ubuntu0.1) ...\n",
+            "Selecting previously unselected package postgresql-10.\n",
+            "Preparing to unpack .../7-postgresql-10_10.22-0ubuntu0.18.04.1_amd64.deb ...\n",
+            "Unpacking postgresql-10 (10.22-0ubuntu0.18.04.1) ...\n",
+            "Selecting previously unselected package postgresql.\n",
+            "Preparing to unpack .../8-postgresql_10+190ubuntu0.1_all.deb ...\n",
+            "Unpacking postgresql (10+190ubuntu0.1) ...\n",
+            "Selecting previously unselected package sysstat.\n",
+            "Preparing to unpack .../9-sysstat_11.6.1-1ubuntu0.2_amd64.deb ...\n",
+            "Unpacking sysstat (11.6.1-1ubuntu0.2) ...\n",
+            "Setting up sysstat (11.6.1-1ubuntu0.2) ...\n",
+            "debconf: unable to initialize frontend: Dialog\n",
+            "debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used. at /usr/share/perl5/Debconf/FrontEnd/Dialog.pm line 76.)\n",
+            "debconf: falling back to frontend: Readline\n",
+            "\n",
+            "Creating config file /etc/default/sysstat with new version\n",
+            "update-alternatives: using /usr/bin/sar.sysstat to provide /usr/bin/sar (sar) in auto mode\n",
+            "Created symlink /etc/systemd/system/multi-user.target.wants/sysstat.service → /lib/systemd/system/sysstat.service.\n",
+            "Setting up ssl-cert (1.0.39) ...\n",
+            "debconf: unable to initialize frontend: Dialog\n",
+            "debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used. at /usr/share/perl5/Debconf/FrontEnd/Dialog.pm line 76.)\n",
+            "debconf: falling back to frontend: Readline\n",
+            "Setting up cron (3.0pl1-128.1ubuntu1.2) ...\n",
+            "Adding group `crontab' (GID 110) ...\n",
+            "Done.\n",
+            "Created symlink /etc/systemd/system/multi-user.target.wants/cron.service → /lib/systemd/system/cron.service.\n",
+            "update-rc.d: warning: start and stop actions are no longer supported; falling back to defaults\n",
+            "invoke-rc.d: could not determine current runlevel\n",
+            "invoke-rc.d: policy-rc.d denied execution of start.\n",
+            "Setting up logrotate (3.11.0-0.1ubuntu1) ...\n",
+            "Setting up netbase (5.4) ...\n",
+            "Setting up postgresql-client-common (190ubuntu0.1) ...\n",
+            "Setting up postgresql-common (190ubuntu0.1) ...\n",
+            "debconf: unable to initialize frontend: Dialog\n",
+            "debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used. at /usr/share/perl5/Debconf/FrontEnd/Dialog.pm line 76.)\n",
+            "debconf: falling back to frontend: Readline\n",
+            "Adding user postgres to group ssl-cert\n",
+            "\n",
+            "Creating config file /etc/postgresql-common/createcluster.conf with new version\n",
+            "Building PostgreSQL dictionaries from installed myspell/hunspell packages...\n",
+            "Removing obsolete dictionary files:\n",
+            "Created symlink /etc/systemd/system/multi-user.target.wants/postgresql.service → /lib/systemd/system/postgresql.service.\n",
+            "invoke-rc.d: could not determine current runlevel\n",
+            "invoke-rc.d: policy-rc.d denied execution of start.\n",
+            "Setting up postgresql-client-10 (10.22-0ubuntu0.18.04.1) ...\n",
+            "update-alternatives: using /usr/share/postgresql/10/man/man1/psql.1.gz to provide /usr/share/man/man1/psql.1.gz (psql.1.gz) in auto mode\n",
+            "Setting up postgresql-10 (10.22-0ubuntu0.18.04.1) ...\n",
+            "debconf: unable to initialize frontend: Dialog\n",
+            "debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used. at /usr/share/perl5/Debconf/FrontEnd/Dialog.pm line 76.)\n",
+            "debconf: falling back to frontend: Readline\n",
+            "Creating new PostgreSQL cluster 10/main ...\n",
+            "/usr/lib/postgresql/10/bin/initdb -D /var/lib/postgresql/10/main --auth-local peer --auth-host md5\n",
+            "The files belonging to this database system will be owned by user \"postgres\".\n",
+            "This user must also own the server process.\n",
+            "\n",
+            "The database cluster will be initialized with locale \"en_US.UTF-8\".\n",
+            "The default database encoding has accordingly been set to \"UTF8\".\n",
+            "The default text search configuration will be set to \"english\".\n",
+            "\n",
+            "Data page checksums are disabled.\n",
+            "\n",
+            "fixing permissions on existing directory /var/lib/postgresql/10/main ... ok\n",
+            "creating subdirectories ... ok\n",
+            "selecting default max_connections ... 100\n",
+            "selecting default shared_buffers ... 128MB\n",
+            "selecting default timezone ... Etc/UTC\n",
+            "selecting dynamic shared memory implementation ... posix\n",
+            "creating configuration files ... ok\n",
+            "running bootstrap script ... ok\n",
+            "performing post-bootstrap initialization ... ok\n",
+            "syncing data to disk ... ok\n",
+            "\n",
+            "Success. You can now start the database server using:\n",
+            "\n",
+            "    /usr/lib/postgresql/10/bin/pg_ctl -D /var/lib/postgresql/10/main -l logfile start\n",
+            "\n",
+            "Ver Cluster Port Status Owner    Data directory              Log file\n",
+            "\u001b[31m10  main    5432 down   postgres /var/lib/postgresql/10/main /var/log/postgresql/postgresql-10-main.log\u001b[0m\n",
+            "update-alternatives: using /usr/share/postgresql/10/man/man1/postmaster.1.gz to provide /usr/share/man/man1/postmaster.1.gz (postmaster.1.gz) in auto mode\n",
+            "invoke-rc.d: could not determine current runlevel\n",
+            "invoke-rc.d: policy-rc.d denied execution of start.\n",
+            "Setting up postgresql (10+190ubuntu0.1) ...\n",
+            "Processing triggers for man-db (2.8.3-2ubuntu0.1) ...\n",
+            "Processing triggers for systemd (237-3ubuntu10.56) ...\n",
+            "\u001b[K     |████████████████████████████████| 167 kB 15.3 MB/s \n",
+            "\u001b[K     |████████████████████████████████| 74 kB 2.6 MB/s \n",
+            "\u001b[?25h * Starting PostgreSQL 10 database server\n",
+            "   ...done.\n",
+            "ALTER ROLE\n",
+            "NOTICE:  database \"my_data\" does not exist, skipping\n",
+            "DROP DATABASE\n",
+            "CREATE DATABASE\n",
+            "env: DB_NAME=my_data\n",
+            "env: DB_HOST=localhost\n",
+            "env: DB_PORT=5432\n",
+            "env: DB_USER=postgres\n",
+            "env: DB_PASS=postgres\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'Connected: postgres@my_data'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 1
+        }
+      ],
+      "source": [
+        "# Some UNIX utilites we need to install for the lab.\n",
+        "!pip install wget --quiet\n",
+        "!pip install sqlalchemy --quiet\n",
+        "!pip install ipython-sql --quiet\n",
+        "\n",
+        "# Install postgresql server\n",
+        "!sudo apt-get -y -qq update\n",
+        "!sudo apt-get -y -qq install postgresql\n",
+        "!pip install pgspecial --quiet\n",
+        "\n",
+        "!sudo service postgresql start\n",
+        "\n",
+        "\n",
+        "# Setup a password `postgres` for username `postgres`\n",
+        "!sudo -u postgres psql -U postgres -c \"ALTER USER postgres PASSWORD 'postgres';\"\n",
+        "\n",
+        "# Setup a postgres database with name `my_data` to be used\n",
+        "!sudo -u postgres psql -U postgres -c 'DROP DATABASE IF EXISTS my_data;'\n",
+        "\n",
+        "!sudo -u postgres psql -U postgres -c 'CREATE DATABASE my_data;'\n",
+        "\n",
+        "# Postgres variables\n",
+        "%env DB_NAME=my_data\n",
+        "%env DB_HOST=localhost\n",
+        "%env DB_PORT=5432\n",
+        "%env DB_USER=postgres\n",
+        "%env DB_PASS=postgres\n",
+        "\n",
+        "# Finally, let's make a connnection with the databse\n",
+        "%load_ext sql\n",
+        "%sql postgresql://$DB_USER:$DB_PASS@$DB_HOST/$DB_NAME"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#Part 1: Scenario Analysis and Business Rule Formulation\n",
+        "For the project, you’ll be creating a mock database for “Monster University,” a school that takes young monsters (dragons, werewolves, cute “ET” style aliens, vampires, ogres, talking apes, robot assassins, and basically anything else you want) and teaches them to be upstanding members of the monster community. The professors are ALSO monsters. Here are the business rules you’ll need to get started:\n",
+        "\n",
+        "1.\tYour main goal is to represent the Monsters, Classes, and Locations (buildings/rooms) at the school.\n",
+        "2.\tMonsters can either teach classes, take classes, or both.\n",
+        "3.\tFor all Monsters we need to keep track of their \n",
+        "\n",
+        "  a.\tname\n",
+        "\n",
+        "  b.\tspecies (what kind of monster are they?)\n",
+        "\n",
+        "  c.\tdate of birth\n",
+        "\n",
+        "  d.\ttheir diet, if known (herbivore, carnivore, omnivore, “brains”, “electricity”, etc.)\n",
+        "\n",
+        "  e. their GPA (between 0 and 4.0)\n",
+        "\n",
+        "  f. the number of credits completed.\n",
+        "\n",
+        "4.\tFor classes, we’d like to track the following:\n",
+        "\n",
+        "  a.\tThe title of the class\n",
+        "\n",
+        "  b.\tThe location in which the class is held\n",
+        "\n",
+        "  c.\tThe duration of the class in minutes (between 30 and 180)\n",
+        "\n",
+        "  d.  The days on which the class meets (for example \"MWF\" or \"TH\").\n",
+        "\n",
+        "  e.  The start time of the class \n",
+        "  \n",
+        "  f.  The instructor of the class (who is a Monster)\n",
+        "\n",
+        "  \n",
+        "5. For locations we want to record:\n",
+        "\n",
+        "  a. A two-character building code (e.g., \"MH\" for Memorial Hall).\n",
+        "\n",
+        "  b. The room number between 1 and 2000.\n",
+        "\n",
+        "  c. The max capacity between 10 and 300.\n",
+        "\n",
+        "6. Some Monsters are Alumni, who have graduated from the school. For alumni we also want to record:\n",
+        "\n",
+        "  a. the year they graduated, and\n",
+        "  \n",
+        "  b. their degree (computer science, business, English, etc.).\n",
+        "\n",
+        "7.\tFormulate THREE additional business rules of your choice. Remember, you’ll eventually need to implement these! At least ONE of these rules should involve a new entity, relationship, and/or constraint (as opposed to simply a new attribute). \n"
+      ],
+      "metadata": {
+        "id": "JkRsM0CVPCyv"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##Your New Business Rules Here:\n",
+        "1. A monster may take many classes, and each class may be taken by many monsters.\n",
+        "\n",
+        "2. Each class takes place in one room, but each room may be used for many classes.\n",
+        "\n",
+        "3. Each class is taught by one instructor, but each instructor may teach many classes.\n",
+        "\n",
+        "4. A monster may be a student, an instructor, an alumni, or any/no combination of these three."
+      ],
+      "metadata": {
+        "id": "NHPX9pNwPTKh"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#Part 2: Conceptual Modeling using Entity-Relationship Diagramming\n",
+        "In this step, I'd like to create an ERD for the business rules above using [Diagrams.net](https://diagrams.net). You should include all entities, attributes, relationships, and cardinalilities. After you have completed this diagram, you should do the following:\n",
+        "\n",
+        "1. Export it as \"SVG\" file in diagrams.net, and save this to your computer.\n",
+        "2. Edit this cell, and select the \"Insert Image\" button.\n",
+        "3. Select the SVG file you download.\n",
+        "4. NOTE: SVG files will work much better than larger image files (which may cause problems if you try to insert them).\n",
+        "\n",
+        "\n",
+        "![COMP-1140 Final Project Data Model.svg](data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCEtLSBEbyBub3QgZWRpdCB0aGlzIGZpbGUgd2l0aCBlZGl0b3JzIG90aGVyIHRoYW4gZGlhZ3JhbXMubmV0IC0tPgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZlcnNpb249IjEuMSIgd2lkdGg9IjkzOXB4IiBoZWlnaHQ9IjcyMXB4IiB2aWV3Qm94PSItMC41IC0wLjUgOTM5IDcyMSIgY29udGVudD0iJmx0O214ZmlsZSBob3N0PSZxdW90O2FwcC5kaWFncmFtcy5uZXQmcXVvdDsgbW9kaWZpZWQ9JnF1b3Q7MjAyMi0xMi0xNFQwMjoyNDowOS44MDJaJnF1b3Q7IGFnZW50PSZxdW90OzUuMCAoTWFjaW50b3NoOyBJbnRlbCBNYWMgT1MgWCAxMF8xNV83KSBBcHBsZVdlYktpdC82MDUuMS4xNSAoS0hUTUwsIGxpa2UgR2Vja28pIFZlcnNpb24vMTUuNi4xIFNhZmFyaS82MDUuMS4xNSZxdW90OyBldGFnPSZxdW90O3RxcGVwTFRyQldwaE04eVY4N3BJJnF1b3Q7IHZlcnNpb249JnF1b3Q7MjAuNC4wJnF1b3Q7IHR5cGU9JnF1b3Q7ZGV2aWNlJnF1b3Q7Jmd0OyZsdDtkaWFncmFtIGlkPSZxdW90O1IybEVFRVVCZEZNakxsaElyeDAwJnF1b3Q7IG5hbWU9JnF1b3Q7UGFnZS0xJnF1b3Q7Jmd0OzdWMWJjOXE2RnY0MXpKenprSTR2bU1zamtLVHRiR2d6YVU3MzZWTkd3UXA0WWl6R0ZnSDJyOS95UlFaYk5yYkJONUE2bmRhV2hYeFozMXFmMXBLVzFGRW5xOTFYRzZ5WE02UkRzNk5JK3E2ajNuY1VSUjcyVlBLZlc3TDNTL3JhMEM5WTJJWWVWRG9VL0RMK2dVR2hGSlJ1REIwNmtZb1lJUk1iNjJqaEhGa1duT05JR2JCdHRJMVdlMGRtOUs1cnNJQk13YTg1TU5uU3Z3MGRMLzNTZ1NZZHlyOUJZN0drZDVhbDRNb2JtSDhzYkxTeGd2dDFGUFZSZmh3OVBQaVhWNEMyRmRSM2xrQkgyMGdSM09GSFpPSGdEWjZndlFJV3REQzVNZ1AyQjdRNzJzTVNZL2REakRyS0kvbjc3dGIrc2tCb1lVS3dOcHd2YzdRaXhYT0hWSGw4Qnl2RGRLVncxTkE0YUlqY1RuM29xQk1iSWV3ZnJYWVRhTHFpcEZMeW4ra3g1V3I0bVd5MzNSdy8rTEhkNjR1bjl6L0xyK2JQcisrZnE4WG4zeTkzUThWdjVoT1lHMGcvbS9keDhKNEtCT3BFUHNFcHN2RVNMWkFGeklkRDZkajlDZ0dRWlBKZTR5VmVtZTR4T1lTV1BuSkJRVTRmbnYrQk5ucEJNMkNSanpKMk1MRHg0UnI1UVBwUHkyM05FeUhVZ3daQ0tVbnV5UWZFODJWd0FuY0cvais5RFRuKzQ1Wi8wWUt6KzkxUnRmczlQYkd3dlE5LzVKNGMvY285UGZ6TU82Ty9NOEViTk1jaHdDYklSTGIzZFNqRTNQZXgwUWM4dXRMVit1UGhmZkI1anNybGUxWFQrcVJjQjg0eWZNOEFnRHFqSEFmNUJrVU8ydGp6b05iazduTS8vWkN3OVcyci9zYXoyZUtwLzNhbmRBTzFCZllDNGhQU0h3eERIQkp6QXRFS2tuY21QOXdlOUM3VXJ1V3h6dEZDRzVvQUc1L1JSd2FCK2l6Q0JzTjdQQ0hEMHlacXJLak5DVXhWYnloRm0vQmZOZmpWTWJiakRVWGI2Y2ZiOGI4RTB3NUJIOWdmVlZ1N0ZaejA1KzJwMGZzb3FuYnlzZUwxQjROSWZYTGdQd0U5T3hMQ29jaFQ0d0lxM2VzV1Uya0NMd1B2bnoxSklxczZ0VDZoeUdjcTVUa0dJR3BjS2xIckpqUzUyMnRXazd1OUtOSlY3VXhOVm1NTmRlTU5wYWp5R2RxVC9NVlZSbnRteUhLd1Q5a1JKU0tBWHJ1SEdMeDU2dUloUDlBWDFjVWE2U0ZoWUZqUUR0QTJSNllKMW83aFZmZExsb2FwVDhFZWJUQnRpSjZOMzQwZDFKLzk3cFRzSVhjN0pZMDVBWkE5NVF3ZXhyME1UR05oa2VNNUFabDd4N0VOSGZJc1UrRGdvTWE3WVpwSGVCME43a2Yza3dzUW5nRG9UMmhqdURzcVloRko1YXhFNVN4VGszMkVXS1diZ05pd3I1WUV6Z2dhQ29zK2grR2tNaWZ2amcxZ1BwTU9NTEFXbnZpajBuVkZwTnRvL1VJMTF5M3crQVhhRDUvUTcyTktNYWxZeUxPVUFRMlJHMnBqOHBlODc4UTFheHA1Z0FrNWx3L24ycjFYM1NaU0loaTFnZUhKQXhLWmI2RXI5ekZHYTlxRGdlLzBNZXpnYTdySGJ3aGowbVVOK2xvbElPRzBWbVhqZ3hxUW5IQlFLME9EeHFEaDZhOGllRURrWmQ5TmovR1docTVEeTdjSXJzOEVEaGhKRUgraXpFSTV4UVVZdHdQVnliQ2JXNFpIUWxNTHlpeG83UEFoQzdjR1RLSmlGc0J3N0ZLNlV3bEo5Qmhzckh5U2VDVy9VNlR2UDE3SXZ6OStldi8rYnpwdElXd29YZmgxeDg0YXpBMXJNZlYvMll2aFNtc0pybmFkVk5zZ2w0cXpYTTNWQWJRK3o1UWt0WXVTZW8xVDB1QWlOTlJrV2FxVFdEKzN4RzZlZ0lhcEJHU0JsZnZNdjBmUGsyK2o1NnVub1RhZzZaWnBKekdhMEJja2t3dGtESFp5ODA0cXllUjFnOHNnbWVTWWNBdXRSRVh5U2NmK1RUTks4a0JRS3FIbzZJMWN1Qis5UEhCTEppWGlpRHN1a1llQ1RScGpFMWxwbWs3a0llK0VFaWdBZjVRaUQ5Tkp4Vm5EdVFHZFkwZWxkU0JwRloya29vZzdRbEhva0tVZ2xBWUlSV3VhVUJSSkxpTCtHeVNVUUFINEl4UkZVdEs5RkFOaXdTWVhRNGc3TnBIcE9JQmdrd2JZWk5BMG04aDA5TEZWdHFMV2ptV2FqRzZkVGVTRUdSNlVUZkIrN1Q2MG9KSUw4TU1kbFhSWlBBVlRCNVdKQ1J3bkZVbThUaURNZ0Z1eENZUjlLU2VYaEZOZVN5ZVRManN0NkxUTW4xMVRNVjRpMi9qSGxiUVptdjhERHJ6enJiRXlnUVcvUWFESGlzWklwek9iRTh4SzN0N0tEWFZEVG1obUsrWWFKajhmTzgzSG5XczRlZnlya0s5YncrekNKSWFyVlpMWjg5eDdwWkpMbnRicTRCWjI2azlwTXc3Yk1MdXdyYmphUlZGd25FNHhLQlZudVpxckEyaHN6RjV3V05uejVTdmdzRG9uSnlZK0h3ME1zeHlXRGlCT09Tdzc2L0ltT1V5VEdZVE1YYjhvd21DQ3dzcUdGWGNVMW1QOWNPRi9sK2QvVThMSnl6aUtKbjJSanY3UWdIdnBETlFUN25jN3V5NjlscnZmdldUM1czUmFHT1hpYjVTZ3h6cmV3dUd1RUUvY2pScjBoTVBkenFCeEJtczE3bkQzV1llN1lTTUVkWU8yMXdyS3l2YXpiNUt5K21sK05qYXdXVVp1WUJQODFWWXdjY2RYZlVYdzFUWHlWZU9KaFgxMlpTWEJWNnhtY2NoWDdMcExQbC9wRzl0Yms0NWMrelViVGFlZXp5Vm82aHdNOFVkVGJCQlkwTlFWMEZUekdZdjlBbUZrUG5rcVJZSTN6MU5zbU5qbnFSV0VtTkRBcXc3MloyWTBja2xWS1REaWpxb0c2UmtvZ3BsYXhFeU5wejRPQ3VXcTNENFJEVGpOWEJtd2ZWdWZpRHlUOElvTmJ3V3dsKyt6QjhGQjV5R0lQdzdxQ1E2NkJnNXFQR0Z5d0hhQ204OVNhQnN2Y1RwWFlzRE9sVERSM0F2aEhjM3hGSXgwRG5iNFk2U2hZS1FyWUtRUUxvMHhFaDNZaWpDU0NOa1YzZWpwSmhscHlFNkZZTlBtQkNHZEF4M3VDS21mWS9YMUp2YlZ5cjFkSHQxbEt6eXBicGV0RnUycmRUSlZJSHRmcllaM3lGUHBMRCs2eXNFZ0J2eTgrMnAxWXczMTRnMlZ0NjlXc2lWbVI5V21nVzl3dXA4WDY5T0p2SnlNdkp6Y0UxUGxYbVU5c2dLN2xuRGRsNjg3RVdlWTRseTJKUkZueUZLc1NNUkpWQzRPdS9Kc25vUkl4S2tRVDl6MTc4TXVtNkN0bG9XZ01taXI4VXdjV1dMRERBMmJvWmJGbjJSZWx5eVdFNVlzRHNkRTNqYkVTWEVuanMyUmZzNXlrenlHbzFLUnhDRmZGVWlvRUh6VkhyNXFQQk5IbGk3ZDZmcjIrWXJUcVdXeXhNNHRDL25LUm1qMWFtMVdiOUR1aUpTY2k3SEVJV09KRlhxdWtyR2FUOHFScFV0M3dyNTl5dUowMXBrc25aaDJ0Z0s3MXpsd09RSHZCV2RkRGliK09FdGxPMFMvOEVhSHdUQ3BHTGNzYVQxL3VudENRRG5kcEpuT05LazNNb3pacll4elZMRTBVenZITVFPbExEU1FtWVNkNnJvckZKVHgxWkJKMGFNWTBVelVzNU05bDV0Y0VGbnU1cG1lS01ZMnkwZFcrcHJJaWx6UVRtUjFZM0kwVnd2VTJIRUl3V1Z0Y0wyenVDd0pvelZ6bVZpNEtVT0V2bkx4U0dEc1FJTGpPMGV2aXpVZ0YrNGZKdCtKejkxMjRtb3RnamdrS3JGdzAzVVNWZEt3WmhKUlZlZXZGOWwvajFPaXlsNjZLWWxhVG9tc09GSEZXNnZGcXJEREI1U281cllySmVkMWpsWnJFMktvaXpqeDVZQXF5RnZuQXl4WGMzVWdiTWgyaFJBREg5S1FzWFpjSUd5WEJvYS9pRURkSzFzYnJEdVJQRERnck1uN2toTXY2SHVXVk5PaXU3bWtuUkdycFIwREdxeE5HaDlNMEh5bE10T2ZzSWJveU55c0xPTjAzNkhUL2lCOXF3U3Z4Z1dmRktWUGtyemNqV3dDSlBjcUEwS09MRTNSZlR3Yld4ZFFoYStpaFdMMlNVaXFMczdSWjRkN1JNeit0SjV4R1BLZ0ZrL0U3R3RHMW9sOURNdEZXcTdtYW9GYWdiUVNycm1zOWxCSUJwY2x1VDMxY3RtZ3dIQVBuNkdRUVVwUDkvWUpqQjNPQVo2cjlMcXdnZjY2aDhEdWlGeWtpekRFSVZVVnlDZ1JWTlVpcWtxSzJpZFJWWFZSKzRUVmpBVlZKU2dYaDFIN0FUdWdFMUNWRGhjMmpPeGxKNmpxTEF3VnBLcnpNWldydVJwQXBTUmtrbngzcmZwbWpza0hGK0hpRXNQRkdwWDVpWEN4bXBSR0VxN0ZVVHJkS0xKd3F0c1pJQTRVczBpQU9CRTdsVG5WaXN3NjFWNkFXRVNIazVXTVArZGFrVm5uV2tTSDYwRFdpUWtIL1ZLUmxxdTVXcUFtWE81MnV0eFpSSmFBMGJxSlRMamNXV2JtUEpmN0JnaU1kYm1OMER0Nk5RM2llVGp3c0FpSTYzdi9SNWIrR3lXMWlkSVpTVzJudHRaaWpEOHFvd0hIdkV1ckUxcFlvZ1d5Z0ZuYnN1cWx1ZFdYTHNOT2ovTXN3NjREWnhtK2d2OUZTMWsrblM3d25MbDhlbzZka0twZFBwMGlpd1lnNG10ZTUxMCtYWWsxcE1VYlNsaytuU0FMN0krcUJSMmcxQWUrNjBidm93YnJNYVU5Vjd6K1FJdlVKd2YrRTVTc3I2d2p6T3JyUWVVQyszMmtqOVVyMTBHZi9vUTJJSWR5aFFyMTUxaWZFcFdyUkgwS0p3OGZLOVRrN25NLy9aQ3c5VzJyL3NhejJlS3AvM2FuWks5THBpWG9rMWFOT2pGYWtGZWQ0dHNhYUhJK2RTb1B3VGx5R2h0QmNGNVVOUVVCUlNySm92YXpUSFBsRU1qaFB6ZGp4QTdHcU5mTmJZN2NreWRvRytTN2VHTVJaWnVvdE95dks3TThtZml0SEhZNWZPK21ZZGNJQjZaTlZMZ3lnSFc3VFFNc1J4YWtvTFk4akhUdVhrdk5VMXVPeFJLdnFuK2UzODVrdXFSQlg3c3BrR1dhaCt2cFF1ZlpEMC9ZbVFRSXhMc2c4Vmt3dWFsbWtOSFEyUkFncHpaQytMaTZEZGJMR2RLaFcrTmYmbHQ7L2RpYWdyYW0mZ3Q7Jmx0Oy9teGZpbGUmZ3Q7IiBzdHlsZT0iYmFja2dyb3VuZC1jb2xvcjogcmdiKDI0MSwgMjUwLCAyMzgpOyI+PGRlZnM+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTM2OC0zMC0zMC0zMC0wIj48cmVjdCB4PSIzNjgiIHk9IjMwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC00MDQtMzAtMjA0LTMwLTAiPjxyZWN0IHg9IjQwNCIgeT0iMzAiIHdpZHRoPSIyMDQiIGhlaWdodD0iMzAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC00MDQtNjAtMjA0LTMwLTAiPjxyZWN0IHg9IjQwNCIgeT0iNjAiIHdpZHRoPSIyMDQiIGhlaWdodD0iMzAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC00MDQtOTAtMjA0LTMwLTAiPjxyZWN0IHg9IjQwNCIgeT0iOTAiIHdpZHRoPSIyMDQiIGhlaWdodD0iMzAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC00MDQtMTIwLTIwNC0zMC0wIj48cmVjdCB4PSI0MDQiIHk9IjEyMCIgd2lkdGg9IjIwNCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTQwNC0xNTAtMjA0LTMwLTAiPjxyZWN0IHg9IjQwNCIgeT0iMTUwIiB3aWR0aD0iMjA0IiBoZWlnaHQ9IjMwIi8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9Im14LWNsaXAtNDA0LTE4MC0yMDQtMzAtMCI+PHJlY3QgeD0iNDA0IiB5PSIxODAiIHdpZHRoPSIyMDQiIGhlaWdodD0iMzAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC0zNjgtNTQwLTYwLTMwLTAiPjxyZWN0IHg9IjM2OCIgeT0iNTQwIiB3aWR0aD0iNjAiIGhlaWdodD0iMzAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC00MzQtNTQwLTE3NC0zMC0wIj48cmVjdCB4PSI0MzQiIHk9IjU0MCIgd2lkdGg9IjE3NCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTM2OC01NzAtNjAtMzAtMCI+PHJlY3QgeD0iMzY4IiB5PSI1NzAiIHdpZHRoPSI2MCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTQzNC01NzAtMTc0LTMwLTAiPjxyZWN0IHg9IjQzNCIgeT0iNTcwIiB3aWR0aD0iMTc0IiBoZWlnaHQ9IjMwIi8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9Im14LWNsaXAtNDgtNTAwLTMwLTMwLTAiPjxyZWN0IHg9IjQ4IiB5PSI1MDAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTg0LTUwMC0yMDQtMzAtMCI+PHJlY3QgeD0iODQiIHk9IjUwMCIgd2lkdGg9IjIwNCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTg0LTUzMC0yMDQtMzAtMCI+PHJlY3QgeD0iODQiIHk9IjUzMCIgd2lkdGg9IjIwNCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTg0LTU2MC0yMDQtMzAtMCI+PHJlY3QgeD0iODQiIHk9IjU2MCIgd2lkdGg9IjIwNCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTg0LTU5MC0yMDQtMzAtMCI+PHJlY3QgeD0iODQiIHk9IjU5MCIgd2lkdGg9IjIwNCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTg0LTYyMC0yMDQtMzAtMCI+PHJlY3QgeD0iODQiIHk9IjYyMCIgd2lkdGg9IjIwNCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTQ4LTY1MC0zMC0zMC0wIj48cmVjdCB4PSI0OCIgeT0iNjUwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC04NC02NTAtMjA0LTMwLTAiPjxyZWN0IHg9Ijg0IiB5PSI2NTAiIHdpZHRoPSIyMDQiIGhlaWdodD0iMzAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC00OC02ODAtMzAtMzAtMCI+PHJlY3QgeD0iNDgiIHk9IjY4MCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIi8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9Im14LWNsaXAtODQtNjgwLTIwNC0zMC0wIj48cmVjdCB4PSI4NCIgeT0iNjgwIiB3aWR0aD0iMjA0IiBoZWlnaHQ9IjMwIi8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9Im14LWNsaXAtNDgtMTAwLTMwLTMwLTAiPjxyZWN0IHg9IjQ4IiB5PSIxMDAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTg0LTEwMC0yMDQtMzAtMCI+PHJlY3QgeD0iODQiIHk9IjEwMCIgd2lkdGg9IjIwNCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTg0LTEzMC0yMDQtMzAtMCI+PHJlY3QgeD0iODQiIHk9IjEzMCIgd2lkdGg9IjIwNCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTg0LTE2MC0yMDQtMzAtMCI+PHJlY3QgeD0iODQiIHk9IjE2MCIgd2lkdGg9IjIwNCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTg0LTE5MC0yMDQtMzAtMCI+PHJlY3QgeD0iODQiIHk9IjE5MCIgd2lkdGg9IjIwNCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTkzLTMyMC02MC0zMC0wIj48cmVjdCB4PSI5MyIgeT0iMzIwIiB3aWR0aD0iNjAiIGhlaWdodD0iMzAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC0xNTktMzIwLTIwOS0zMC0wIj48cmVjdCB4PSIxNTkiIHk9IjMyMCIgd2lkdGg9IjIwOSIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTE1OS0zNTAtMjA5LTMwLTAiPjxyZWN0IHg9IjE1OSIgeT0iMzUwIiB3aWR0aD0iMjA5IiBoZWlnaHQ9IjMwIi8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9Im14LWNsaXAtMTU5LTM4MC0yMDktNDAtMCI+PHJlY3QgeD0iMTU5IiB5PSIzODAiIHdpZHRoPSIyMDkiIGhlaWdodD0iNDAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC0zNzgtMzIwLTYwLTMwLTAiPjxyZWN0IHg9IjM3OCIgeT0iMzIwIiB3aWR0aD0iNjAiIGhlaWdodD0iMzAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC00NDQtMzIwLTE1NC0zMC0wIj48cmVjdCB4PSI0NDQiIHk9IjMyMCIgd2lkdGg9IjE1NCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTQ0NC0zNTAtMTU0LTMwLTAiPjxyZWN0IHg9IjQ0NCIgeT0iMzUwIiB3aWR0aD0iMTU0IiBoZWlnaHQ9IjMwIi8+PC9jbGlwUGF0aD48Y2xpcFBhdGggaWQ9Im14LWNsaXAtNDQ0LTM4MC0xNTQtNDAtMCI+PHJlY3QgeD0iNDQ0IiB5PSIzODAiIHdpZHRoPSIxNTQiIGhlaWdodD0iNDAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC02MDgtMzIwLTYwLTMwLTAiPjxyZWN0IHg9IjYwOCIgeT0iMzIwIiB3aWR0aD0iNjAiIGhlaWdodD0iMzAiLz48L2NsaXBQYXRoPjxjbGlwUGF0aCBpZD0ibXgtY2xpcC02NzQtMzIwLTI2NC0zMC0wIj48cmVjdCB4PSI2NzQiIHk9IjMyMCIgd2lkdGg9IjI2NCIgaGVpZ2h0PSIzMCIvPjwvY2xpcFBhdGg+PGNsaXBQYXRoIGlkPSJteC1jbGlwLTY3NC0zNTAtMjY0LTMwLTAiPjxyZWN0IHg9IjY3NCIgeT0iMzUwIiB3aWR0aD0iMjY0IiBoZWlnaHQ9IjMwIi8+PC9jbGlwUGF0aD48c3R5bGUgdHlwZT0idGV4dC9jc3MiPkBpbXBvcnQgdXJsKGh0dHBzOi8vZm9udHMuZ29vZ2xlYXBpcy5jb20vY3NzP2ZhbWlseT1QZXJtYW5lbnQrTWFya2VyKTsmI3hhOzwvc3R5bGU+PC9kZWZzPjxnPjxwYXRoIGQ9Ik0gNjA4IDQ1IEwgNjY3Ljk0IDQ1IFEgNjc3Ljk0IDQ1IDY3Ny45NCA1NSBMIDY3Ny45NCA2ODUgUSA2NzcuOTQgNjk1IDY2Ny45NCA2OTUgTCAyODggNjk1IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLWRhc2hhcnJheT0iMyAzIiBwb2ludGVyLWV2ZW50cz0ic3Ryb2tlIi8+PHBhdGggZD0iTSA2MTIgNDEgTCA2MTIgNDkgTSA2MTYgNDEgTCA2MTYgNDkiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0iYWxsIi8+PGVsbGlwc2UgY3g9IjMwMCIgY3k9IjY5NSIgcng9IjMiIHJ5PSIzIiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiM0NTdiOWQiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cGF0aCBkPSJNIDI4OCA2OTkgTCAyOTYgNjk1IEwgMjg4IDY5MSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cGF0aCBkPSJNIDYwOCA0NSBMIDYyOCA0NSBRIDYzOCA0NSA2MzggNTUgTCA2MzggNTQ1IFEgNjM4IDU1NSA2MjggNTU1IEwgNjA4IDU1NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJzdHJva2UiLz48cGF0aCBkPSJNIDYxMiA0MSBMIDYxMiA0OSBNIDYxNiA0MSBMIDYxNiA0OSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48ZWxsaXBzZSBjeD0iNjIwIiBjeT0iNTU1IiByeD0iMyIgcnk9IjMiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzQ1N2I5ZCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxwYXRoIGQ9Ik0gNjA4IDU1OSBMIDYxNiA1NTUgTCA2MDggNTUxIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9ImFsbCIvPjxwYXRoIGQ9Ik0gMzY4IDMwIEwgMzY4IDAgTCA2MDggMCBMIDYwOCAzMCIgZmlsbD0iI2E4ZGFkYyIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJhbGwiLz48cGF0aCBkPSJNIDM2OCAzMCBMIDM2OCAyMjAgTCA2MDggMjIwIEwgNjA4IDMwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDM2OCAzMCBMIDYwOCAzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAzOTggMzAgTCAzOTggNjAgTCAzOTggOTAgTCAzOTggMTIwIEwgMzk4IDE1MCBMIDM5OCAxODAgTCAzOTggMjEwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXdlaWdodD0iYm9sZCIgcG9pbnRlci1ldmVudHM9Im5vbmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNDg3LjUiIHk9IjE5LjUiPk1vbnN0ZXI8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gMzY4IDMwIE0gNjA4IDMwIE0gNjA4IDYwIEwgMzY4IDYwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDM2OCAzMCBNIDM5OCAzMCBNIDM5OCA2MCBNIDM2OCA2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC13ZWlnaHQ9ImJvbGQiIHBvaW50ZXItZXZlbnRzPSJub25lIiBjbGlwLXBhdGg9InVybCgjbXgtY2xpcC0zNjgtMzAtMzAtMzAtMCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMzgyLjUiIHk9IjQ5LjUiPlBLPC90ZXh0PjwvZz48cGF0aCBkPSJNIDM5OCAzMCBNIDYwOCAzMCBNIDYwOCA2MCBNIDM5OCA2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtZGVjb3JhdGlvbj0idW5kZXJsaW5lIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtNDA0LTMwLTIwNC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI0MDUuNSIgeT0iNDkuNSI+bW9uc3Rlcl9pZCBJTlQgTk9UIE5VTEw8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gMzY4IDYwIE0gNjA4IDYwIE0gNjA4IDkwIE0gMzY4IDkwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDM2OCA2MCBNIDM5OCA2MCBNIDM5OCA5MCBNIDM2OCA5MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAzOTggNjAgTSA2MDggNjAgTSA2MDggOTAgTSAzOTggOTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHBvaW50ZXItZXZlbnRzPSJub25lIiBjbGlwLXBhdGg9InVybCgjbXgtY2xpcC00MDQtNjAtMjA0LTMwLTApIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjQwNS41IiB5PSI3OS41Ij5tb25zdGVyX25hbWUgVkFSQ0hBUiBOT1QgTlVMTDwvdGV4dD48L2c+PHBhdGggZD0iTSAzNjggOTAgTSA2MDggOTAgTSA2MDggMTIwIE0gMzY4IDEyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAzNjggOTAgTSAzOTggOTAgTSAzOTggMTIwIE0gMzY4IDEyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAzOTggOTAgTSA2MDggOTAgTSA2MDggMTIwIE0gMzk4IDEyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTQwNC05MC0yMDQtMzAtMCkiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNDA1LjUiIHk9IjEwOS41Ij5tb25zdGVyX2RvYiBEQVRFIE5PVCBOVUxMPC90ZXh0PjwvZz48cGF0aCBkPSJNIDM2OCAxMjAgTSA2MDggMTIwIE0gNjA4IDE1MCBNIDM2OCAxNTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gMzY4IDEyMCBNIDM5OCAxMjAgTSAzOTggMTUwIE0gMzY4IDE1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAzOTggMTIwIE0gNjA4IDEyMCBNIDYwOCAxNTAgTSAzOTggMTUwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtNDA0LTEyMC0yMDQtMzAtMCkiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNDA1LjUiIHk9IjEzOS41Ij5tb25zdGVyX3NwZWNpZXMgVkFSQ0hBUjwvdGV4dD48L2c+PHBhdGggZD0iTSAzNjggMTUwIE0gNjA4IDE1MCBNIDYwOCAxODAgTSAzNjggMTgwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDM2OCAxNTAgTSAzOTggMTUwIE0gMzk4IDE4MCBNIDM2OCAxODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gMzk4IDE1MCBNIDYwOCAxNTAgTSA2MDggMTgwIE0gMzk4IDE4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTQwNC0xNTAtMjA0LTMwLTApIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjQwNS41IiB5PSIxNjkuNSI+bW9uc3Rlcl9kaWV0IFZBUkNIQVI8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gMzY4IDE4MCBNIDYwOCAxODAgTSA2MDggMjEwIE0gMzY4IDIxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAzNjggMTgwIE0gMzk4IDE4MCBNIDM5OCAyMTAgTSAzNjggMjEwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDM5OCAxODAgTSA2MDggMTgwIE0gNjA4IDIxMCBNIDM5OCAyMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHBvaW50ZXItZXZlbnRzPSJub25lIiBjbGlwLXBhdGg9InVybCgjbXgtY2xpcC00MDQtMTgwLTIwNC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI0MDUuNSIgeT0iMTk5LjUiPm1vbnN0ZXJfdHlwZSBDSEFSPC90ZXh0PjwvZz48cGF0aCBkPSJNIDM2OCA1NDAgTCAzNjggNTEwIEwgNjA4IDUxMCBMIDYwOCA1NDAiIGZpbGw9IiNhOGRhZGMiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gMzY4IDU0MCBMIDM2OCA2MTAgTCA2MDggNjEwIEwgNjA4IDU0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAzNjggNTQwIEwgNjA4IDU0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSA0MjggNTQwIEwgNDI4IDU3MCBMIDQyOCA2MDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIGZvbnQtd2VpZ2h0PSJib2xkIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI0ODcuNSIgeT0iNTI5LjUiPk1vbnN0ZXIyQ2xhc3M8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gMzY4IDU0MCBNIDQyOCA1NDAgTSA0MjggNTcwIE0gMzY4IDU3MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC13ZWlnaHQ9ImJvbGQiIHBvaW50ZXItZXZlbnRzPSJub25lIiBjbGlwLXBhdGg9InVybCgjbXgtY2xpcC0zNjgtNTQwLTYwLTMwLTApIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjM5Ny41IiB5PSI1NTkuNSI+UEssRksxPC90ZXh0PjwvZz48cGF0aCBkPSJNIDQyOCA1NDAgTSA2MDggNTQwIE0gNjA4IDU3MCBNIDQyOCA1NzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWRlY29yYXRpb249InVuZGVybGluZSIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTQzNC01NDAtMTc0LTMwLTApIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjQzNS41IiB5PSI1NTkuNSI+bW9uc3Rlcl9pZCBJTlQgTk9UIE5VTEw8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gMzY4IDU3MCBNIDYwOCA1NzAgTSA2MDggNjAwIEwgMzY4IDYwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAzNjggNTcwIE0gNDI4IDU3MCBNIDQyOCA2MDAgTSAzNjggNjAwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXdlaWdodD0iYm9sZCIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTM2OC01NzAtNjAtMzAtMCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMzk3LjUiIHk9IjU4OS41Ij5QSyxGSzI8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDI4IDU3MCBNIDYwOCA1NzAgTSA2MDggNjAwIE0gNDI4IDYwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtZGVjb3JhdGlvbj0idW5kZXJsaW5lIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtNDM0LTU3MC0xNzQtMzAtMCkiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNDM1LjUiIHk9IjU4OS41Ij5jbGFzc19pZCBJTlQgTk5PVCBOVUxMPC90ZXh0PjwvZz48cGF0aCBkPSJNIDQ4IDUwMCBMIDQ4IDQ3MCBMIDI4OCA0NzAgTCAyODggNTAwIiBmaWxsPSIjYThkYWRjIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDQ4IDUwMCBMIDQ4IDcyMCBMIDI4OCA3MjAgTCAyODggNTAwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDQ4IDUwMCBMIDI4OCA1MDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNzggNTAwIEwgNzggNTMwIEwgNzggNTYwIEwgNzggNTkwIEwgNzggNjIwIEwgNzggNjUwIEwgNzggNjgwIEwgNzggNzEwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXdlaWdodD0iYm9sZCIgcG9pbnRlci1ldmVudHM9Im5vbmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTY3LjUiIHk9IjQ4OS41Ij5DbGFzczwvdGV4dD48L2c+PHBhdGggZD0iTSA0OCA1MDAgTSAyODggNTAwIE0gMjg4IDUzMCBMIDQ4IDUzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSA0OCA1MDAgTSA3OCA1MDAgTSA3OCA1MzAgTSA0OCA1MzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIGZvbnQtd2VpZ2h0PSJib2xkIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtNDgtNTAwLTMwLTMwLTApIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjYyLjUiIHk9IjUxOS41Ij5QSzwvdGV4dD48L2c+PHBhdGggZD0iTSA3OCA1MDAgTSAyODggNTAwIE0gMjg4IDUzMCBNIDc4IDUzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtZGVjb3JhdGlvbj0idW5kZXJsaW5lIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtODQtNTAwLTIwNC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI4NS41IiB5PSI1MTkuNSI+aWQgSU5UIE5PVCBOVUxMPC90ZXh0PjwvZz48cGF0aCBkPSJNIDQ4IDUzMCBNIDc4IDUzMCBNIDc4IDU2MCBNIDQ4IDU2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSA3OCA1MzAgTSAyODggNTMwIE0gMjg4IDU2MCBNIDc4IDU2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTg0LTUzMC0yMDQtMzAtMCkiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iODUuNSIgeT0iNTQ5LjUiPmNsYXNzX3RpdGxlIFZBUkNIQVIgTk9UIE5VTEw8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDggNTYwIE0gNzggNTYwIE0gNzggNTkwIE0gNDggNTkwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDc4IDU2MCBNIDI4OCA1NjAgTSAyODggNTkwIE0gNzggNTkwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtODQtNTYwLTIwNC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI4NS41IiB5PSI1NzkuNSI+Y2xhc3NfZHVyYXRpb24gU01BTExJTlQ8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDggNTkwIE0gNzggNTkwIE0gNzggNjIwIE0gNDggNjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDc4IDU5MCBNIDI4OCA1OTAgTSAyODggNjIwIE0gNzggNjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtODQtNTkwLTIwNC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI4NS41IiB5PSI2MDkuNSI+Y2xhc3NfbWVldGluZ19kYXlzIFZBUkNIQVI8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDggNjIwIE0gNzggNjIwIE0gNzggNjUwIE0gNDggNjUwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDc4IDYyMCBNIDI4OCA2MjAgTSAyODggNjUwIE0gNzggNjUwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtODQtNjIwLTIwNC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI4NS41IiB5PSI2MzkuNSI+Y2xhc3Nfc3RhcnRfdGltZSBUSU1FPC90ZXh0PjwvZz48cGF0aCBkPSJNIDQ4IDY1MCBNIDc4IDY1MCBNIDc4IDY4MCBNIDQ4IDY4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTQ4LTY1MC0zMC0zMC0wKSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI2Mi41IiB5PSI2NjkuNSI+RksxPC90ZXh0PjwvZz48cGF0aCBkPSJNIDc4IDY1MCBNIDI4OCA2NTAgTSAyODggNjgwIE0gNzggNjgwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtODQtNjUwLTIwNC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI4NS41IiB5PSI2NjkuNSI+bG9jYXRpb25faWQgSU5UPC90ZXh0PjwvZz48cGF0aCBkPSJNIDQ4IDY4MCBNIDc4IDY4MCBNIDc4IDcxMCBNIDQ4IDcxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTQ4LTY4MC0zMC0zMC0wKSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI2Mi41IiB5PSI2OTkuNSI+RksyPC90ZXh0PjwvZz48cGF0aCBkPSJNIDc4IDY4MCBNIDI4OCA2ODAgTSAyODggNzEwIE0gNzggNzEwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtODQtNjgwLTIwNC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI4NS41IiB5PSI2OTkuNSI+bW9uc3Rlcl9pZCBJTlQ8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gMjg4IDUxNSBMIDMwOCA1MTUgUSAzMTggNTE1IDMyMC43NSA1MjQuNjIgTCAzMzUuMjUgNTc1LjM4IFEgMzM4IDU4NSAzNDggNTg1IEwgMzY4IDU4NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAyOTIgNTExIEwgMjkyIDUxOSBNIDI5NiA1MTEgTCAyOTYgNTE5IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZWxsaXBzZSBjeD0iMzU2IiBjeT0iNTg1IiByeD0iMyIgcnk9IjMiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzQ1N2I5ZCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDM2OCA1ODEgTCAzNjAgNTg1IEwgMzY4IDU4OSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSA0OCAxMDAgTCA0OCA3MCBMIDI4OCA3MCBMIDI4OCAxMDAiIGZpbGw9IiNhOGRhZGMiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNDggMTAwIEwgNDggMjMwIEwgMjg4IDIzMCBMIDI4OCAxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNDggMTAwIEwgMjg4IDEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSA3OCAxMDAgTCA3OCAxMzAgTCA3OCAxNjAgTCA3OCAxOTAgTCA3OCAyMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIGZvbnQtd2VpZ2h0PSJib2xkIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSIxNjcuNSIgeT0iODkuNSI+TG9jYXRpb248L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDggMTAwIE0gMjg4IDEwMCBNIDI4OCAxMzAgTCA0OCAxMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNDggMTAwIE0gNzggMTAwIE0gNzggMTMwIE0gNDggMTMwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXdlaWdodD0iYm9sZCIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTQ4LTEwMC0zMC0zMC0wKSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI2Mi41IiB5PSIxMTkuNSI+UEs8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNzggMTAwIE0gMjg4IDEwMCBNIDI4OCAxMzAgTSA3OCAxMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWRlY29yYXRpb249InVuZGVybGluZSIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTg0LTEwMC0yMDQtMzAtMCkiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iODUuNSIgeT0iMTE5LjUiPmlkIElOVCBOT1QgTlVMTDwvdGV4dD48L2c+PHBhdGggZD0iTSA0OCAxMzAgTSA3OCAxMzAgTSA3OCAxNjAgTSA0OCAxNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNzggMTMwIE0gMjg4IDEzMCBNIDI4OCAxNjAgTSA3OCAxNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHBvaW50ZXItZXZlbnRzPSJub25lIiBjbGlwLXBhdGg9InVybCgjbXgtY2xpcC04NC0xMzAtMjA0LTMwLTApIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9Ijg1LjUiIHk9IjE0OS41Ij5sb2NhdGlvbl9idWlsZGluZ19jb2RlIENIQVI8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDggMTYwIE0gNzggMTYwIE0gNzggMTkwIE0gNDggMTkwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDc4IDE2MCBNIDI4OCAxNjAgTSAyODggMTkwIE0gNzggMTkwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtODQtMTYwLTIwNC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI4NS41IiB5PSIxNzkuNSI+bG9jYXRpb25fcm9vbV9udW1iZXIgU01BTExJTlQ8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDggMTkwIE0gNzggMTkwIE0gNzggMjIwIE0gNDggMjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDc4IDE5MCBNIDI4OCAxOTAgTSAyODggMjIwIE0gNzggMjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtODQtMTkwLTIwNC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI4NS41IiB5PSIyMDkuNSI+bG9jYXRpb25fbWF4X2NhcGFjaXR5IFNNQUxMSU5UPC90ZXh0PjwvZz48cGF0aCBkPSJNIDkzIDMyMCBMIDkzIDI5MCBMIDM2OCAyOTAgTCAzNjggMzIwIiBmaWxsPSIjYThkYWRjIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDkzIDMyMCBMIDkzIDQzMCBMIDM2OCA0MzAgTCAzNjggMzIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDkzIDMyMCBMIDM2OCAzMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gMTUzIDMyMCBMIDE1MyAzNTAgTCAxNTMgMzgwIEwgMTUzIDQyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC13ZWlnaHQ9ImJvbGQiIHBvaW50ZXItZXZlbnRzPSJub25lIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjIzMCIgeT0iMzA5LjUiPlN0dWRlbnQ8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gOTMgMzIwIE0gMzY4IDMyMCBNIDM2OCAzNTAgTCA5MyAzNTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gOTMgMzIwIE0gMTUzIDMyMCBNIDE1MyAzNTAgTSA5MyAzNTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIGZvbnQtd2VpZ2h0PSJib2xkIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtOTMtMzIwLTYwLTMwLTApIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjEyMi41IiB5PSIzMzkuNSI+UEssIEZLPC90ZXh0PjwvZz48cGF0aCBkPSJNIDE1MyAzMjAgTSAzNjggMzIwIE0gMzY4IDM1MCBNIDE1MyAzNTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIGZvbnQtd2VpZ2h0PSJib2xkIiB0ZXh0LWRlY29yYXRpb249InVuZGVybGluZSIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTE1OS0zMjAtMjA5LTMwLTApIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjE2MC41IiB5PSIzMzkuNSI+bW9uc3Rlcl9pZCBJTlQgTk9UIE5VTEw8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gOTMgMzUwIE0gMTUzIDM1MCBNIDE1MyAzODAgTSA5MyAzODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gMTUzIDM1MCBNIDM2OCAzNTAgTSAzNjggMzgwIE0gMTUzIDM4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTE1OS0zNTAtMjA5LTMwLTApIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjE2MC41IiB5PSIzNjkuNSI+c3R1ZGVudF9ncGEgREVDSU1BTDwvdGV4dD48L2c+PHBhdGggZD0iTSA5MyAzODAgTSAxNTMgMzgwIE0gMTUzIDQyMCBNIDkzIDQyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAxNTMgMzgwIE0gMzY4IDM4MCBNIDM2OCA0MjAgTSAxNTMgNDIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtMTU5LTM4MC0yMDktNDAtMCkiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iMTYwLjUiIHk9IjQwNC41Ij5zdHVkZW50X2NyZWRpdHNfY29tcGxldGVkIFNNQUxMSU5UPC90ZXh0PjwvZz48ZWxsaXBzZSBjeD0iNDg4IiBjeT0iMjQwIiByeD0iMTAiIHJ5PSIxMCIgZmlsbD0iI2E4ZGFkYyIgc3Ryb2tlPSIjNDU3YjlkIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0wLjUgLTAuNSkiPjxzd2l0Y2g+PGZvcmVpZ25PYmplY3QgcG9pbnRlci1ldmVudHM9Im5vbmUiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHJlcXVpcmVkRmVhdHVyZXM9Imh0dHA6Ly93d3cudzMub3JnL1RSL1NWRzExL2ZlYXR1cmUjRXh0ZW5zaWJpbGl0eSIgc3R5bGU9Im92ZXJmbG93OiB2aXNpYmxlOyB0ZXh0LWFsaWduOiBsZWZ0OyI+PGRpdiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCIgc3R5bGU9ImRpc3BsYXk6IGZsZXg7IGFsaWduLWl0ZW1zOiB1bnNhZmUgY2VudGVyOyBqdXN0aWZ5LWNvbnRlbnQ6IHVuc2FmZSBjZW50ZXI7IHdpZHRoOiAxOHB4OyBoZWlnaHQ6IDFweDsgcGFkZGluZy10b3A6IDI0MHB4OyBtYXJnaW4tbGVmdDogNDc5cHg7Ij48ZGl2IGRhdGEtZHJhd2lvLWNvbG9ycz0iY29sb3I6ICMxRDM1NTc7ICIgc3R5bGU9ImJveC1zaXppbmc6IGJvcmRlci1ib3g7IGZvbnQtc2l6ZTogMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IGZvbnQtc2l6ZTogMTJweDsgZm9udC1mYW1pbHk6IEhlbHZldGljYTsgY29sb3I6IHJnYigyOSwgNTMsIDg3KTsgbGluZS1oZWlnaHQ6IDEuMjsgcG9pbnRlci1ldmVudHM6IG5vbmU7IHdoaXRlLXNwYWNlOiBub3JtYWw7IHdvcmQtd3JhcDogbm9ybWFsOyI+bzwvZGl2PjwvZGl2PjwvZGl2PjwvZm9yZWlnbk9iamVjdD48dGV4dCB4PSI0ODgiIHk9IjI0NCIgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC1zaXplPSIxMnB4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5vPC90ZXh0Pjwvc3dpdGNoPjwvZz48cGF0aCBkPSJNIDM3OCAzMjAgTCAzNzggMjkwIEwgNTk4IDI5MCBMIDU5OCAzMjAiIGZpbGw9IiNhOGRhZGMiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gMzc4IDMyMCBMIDM3OCA0MzAgTCA1OTggNDMwIEwgNTk4IDMyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAzNzggMzIwIEwgNTk4IDMyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSA0MzggMzIwIEwgNDM4IDM1MCBMIDQzOCAzODAgTCA0MzggNDIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXdlaWdodD0iYm9sZCIgcG9pbnRlci1ldmVudHM9Im5vbmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNDg3LjUiIHk9IjMwOS41Ij5BbHVtbmk8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gMzc4IDMyMCBNIDU5OCAzMjAgTSA1OTggMzUwIEwgMzc4IDM1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PHBhdGggZD0iTSAzNzggMzIwIE0gNDM4IDMyMCBNIDQzOCAzNTAgTSAzNzggMzUwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXdlaWdodD0iYm9sZCIgcG9pbnRlci1ldmVudHM9Im5vbmUiIGNsaXAtcGF0aD0idXJsKCNteC1jbGlwLTM3OC0zMjAtNjAtMzAtMCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNDA3LjUiIHk9IjMzOS41Ij5QSywgRks8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNDM4IDMyMCBNIDU5OCAzMjAgTSA1OTggMzUwIE0gNDM4IDM1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtZGVjb3JhdGlvbj0idW5kZXJsaW5lIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtNDQ0LTMyMC0xNTQtMzAtMCkiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNDQ1LjUiIHk9IjMzOS41Ij5tb25zdGVyX2lkIElOVCBOT1QgTlVMTDwvdGV4dD48L2c+PHBhdGggZD0iTSAzNzggMzUwIE0gNDM4IDM1MCBNIDQzOCAzODAgTSAzNzggMzgwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDQzOCAzNTAgTSA1OTggMzUwIE0gNTk4IDM4MCBNIDQzOCAzODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHBvaW50ZXItZXZlbnRzPSJub25lIiBjbGlwLXBhdGg9InVybCgjbXgtY2xpcC00NDQtMzUwLTE1NC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI0NDUuNSIgeT0iMzY5LjUiPmFsdW1uaV9ncmFkX3llYXIgQ0hBUjwvdGV4dD48L2c+PHBhdGggZD0iTSAzNzggMzgwIE0gNDM4IDM4MCBNIDQzOCA0MjAgTSAzNzggNDIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDQzOCAzODAgTSA1OTggMzgwIE0gNTk4IDQyMCBNIDQzOCA0MjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHBvaW50ZXItZXZlbnRzPSJub25lIiBjbGlwLXBhdGg9InVybCgjbXgtY2xpcC00NDQtMzgwLTE1NC00MC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI0NDUuNSIgeT0iNDA0LjUiPmFsdW1uaV9kZWdyZWUgVkFSQ0hBUjwvdGV4dD48L2c+PHBhdGggZD0iTSA2MDggMzIwIEwgNjA4IDI5MCBMIDkzOCAyOTAgTCA5MzggMzIwIiBmaWxsPSIjYThkYWRjIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDYwOCAzMjAgTCA2MDggMzkwIEwgOTM4IDM5MCBMIDkzOCAzMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNjA4IDMyMCBMIDkzOCAzMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNjY4IDMyMCBMIDY2OCAzNTAgTCA2NjggMzgwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZyBmaWxsPSIjMUQzNTU3IiBmb250LWZhbWlseT0iSGVsdmV0aWNhIiBmb250LXdlaWdodD0iYm9sZCIgcG9pbnRlci1ldmVudHM9Im5vbmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNzcyLjUiIHk9IjMwOS41Ij5JbnN0cnVjdG9yPC90ZXh0PjwvZz48cGF0aCBkPSJNIDYwOCAzMjAgTSA5MzggMzIwIE0gOTM4IDM1MCBMIDYwOCAzNTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNjA4IDMyMCBNIDY2OCAzMjAgTSA2NjggMzUwIE0gNjA4IDM1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC13ZWlnaHQ9ImJvbGQiIHBvaW50ZXItZXZlbnRzPSJub25lIiBjbGlwLXBhdGg9InVybCgjbXgtY2xpcC02MDgtMzIwLTYwLTMwLTApIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEycHgiPjx0ZXh0IHg9IjYzNy41IiB5PSIzMzkuNSI+UEssRks8L3RleHQ+PC9nPjxwYXRoIGQ9Ik0gNjY4IDMyMCBNIDkzOCAzMjAgTSA5MzggMzUwIE0gNjY4IDM1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDU3YjlkIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHBvaW50ZXItZXZlbnRzPSJub25lIi8+PGcgZmlsbD0iIzFEMzU1NyIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtZGVjb3JhdGlvbj0idW5kZXJsaW5lIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIgY2xpcC1wYXRoPSJ1cmwoI214LWNsaXAtNjc0LTMyMC0yNjQtMzAtMCkiIGZvbnQtc2l6ZT0iMTJweCI+PHRleHQgeD0iNjc1LjUiIHk9IjMzOS41Ij5tb25zdGVyX2lkIElOVCBOT1QgTlVMTDwvdGV4dD48L2c+PHBhdGggZD0iTSA2MDggMzUwIE0gNjY4IDM1MCBNIDY2OCAzODAgTSA2MDggMzgwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1saW5lY2FwPSJzcXVhcmUiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDY2OCAzNTAgTSA5MzggMzUwIE0gOTM4IDM4MCBNIDY2OCAzODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxnIGZpbGw9IiMxRDM1NTciIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EiIHBvaW50ZXItZXZlbnRzPSJub25lIiBjbGlwLXBhdGg9InVybCgjbXgtY2xpcC02NzQtMzUwLTI2NC0zMC0wKSIgZm9udC1zaXplPSIxMnB4Ij48dGV4dCB4PSI2NzUuNSIgeT0iMzY5LjUiPmluc3RydWN0b3JfbGljZW5zZV9udW1iZXIgQ0hBUigxMCkgTk9UIE5VTEzCoDwvdGV4dD48L2c+PHBhdGggZD0iTSA0OCAxMTUgTCAxOC4wNiAxMTUgUSA4LjA2IDExNSA4LjA2IDEyNSBMIDguMDYgNjU1IFEgOC4wNiA2NjUgMTguMDYgNjY1IEwgNDggNjY1IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLWRhc2hhcnJheT0iMyAzIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNDQgMTE5IEwgNDQgMTExIE0gNDAgMTE5IEwgNDAgMTExIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48ZWxsaXBzZSBjeD0iMzYiIGN5PSI2NjUiIHJ4PSIzIiByeT0iMyIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjNDU3YjlkIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNDggNjYxIEwgNDAgNjY1IEwgNDggNjY5IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDQ4OCAyMzAgTCA0ODggMjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDI0OCAyNzAgTCA3NjggMjcwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0NTdiOWQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgcG9pbnRlci1ldmVudHM9Im5vbmUiLz48cGF0aCBkPSJNIDI0OC4xIDI5MCBMIDI0OCAyNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNDg4IDI5MCBMIDQ4OCAyNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNzY4IDI5MCBMIDc2OCAyNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNDg4IDI3MCBMIDQ4OCAyNTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjxwYXRoIGQ9Ik0gNDQ4IDI1MCBMIDUyOCAyNTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ1N2I5ZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBwb2ludGVyLWV2ZW50cz0ibm9uZSIvPjwvZz48c3dpdGNoPjxnIHJlcXVpcmVkRmVhdHVyZXM9Imh0dHA6Ly93d3cudzMub3JnL1RSL1NWRzExL2ZlYXR1cmUjRXh0ZW5zaWJpbGl0eSIvPjxhIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTUpIiB4bGluazpocmVmPSJodHRwczovL3d3dy5kaWFncmFtcy5uZXQvZG9jL2ZhcS9zdmctZXhwb3J0LXRleHQtcHJvYmxlbXMiIHRhcmdldD0iX2JsYW5rIj48dGV4dCB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEwcHgiIHg9IjUwJSIgeT0iMTAwJSI+VGV4dCBpcyBub3QgU1ZHIC0gY2Fubm90IGRpc3BsYXk8L3RleHQ+PC9hPjwvc3dpdGNoPjwvc3ZnPg==)"
+      ],
+      "metadata": {
+        "id": "cV_EtRLePpnY"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#Part 3: Logical Modeling\n",
+        "In this part, I'd like you to map the E-R model you've created to a relational model. This involves creating a relational scheme like the following:\n",
+        "\n",
+        "\n",
+        "```\n",
+        "table_name_1(attribute1 (PK), attribute2, attribute3)\n",
+        "table_name_2(attribute1 (PK), attribute2, attribute3)\n",
+        "\n",
+        "```\n",
+        "You should indicate any **primary keys** by using (PK) and any foreign keys with (FK). For primary keys, you'll need to think about whether you can/should use attributes included in the ER diagram, or whether you might want to to create new attributes to serve as keys.\n",
+        "\n",
+        "I recommend creating entities in this order:\n",
+        "1. One table for each \"strong\" entity in the E-R diagram. Decide on a primary key.\n",
+        "2. Tables for subtypes, if needed.\n",
+        "3. One table for each \"weak\" entity (besides subtypes) in the E-R diagram. Decide on appropriate primary and foreign keys.\n",
+        "4. Tables needed to model M:N relationships present in the E-R diagram.\n",
+        "\n",
+        "**PUT YOUR ANSWER BELOW.**\n",
+        "\n",
+        "My answer...\n",
+        "\n",
+        "Monster(monster_id (PK), monster_name, monster_dob, monster_species, monster_diet, monster_type)\n",
+        "\n",
+        "Class(id (PK), class_title, class_duration, class_meeting_days, class_start_time, location_id (FK), monster_id (FK))\n",
+        "\n",
+        "Location(id (PK), location_building_code, location_room_number, location_max_capacity)\n",
+        "\n",
+        "Student(monster_id (PK, FK), student_gpa, student_credits_completed)\n",
+        "\n",
+        "Instructor(monster_id (PK, FK), instructor_license_number)\n",
+        "\n",
+        "Alumni(monster_id (PK, FK), alumni_grad_year, alumni_degree)\n",
+        "\n",
+        "Monster2Class(monster_id (PK, FK), class_id (PK, FK))\n"
+      ],
+      "metadata": {
+        "id": "kFIH3wVIQypo"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#Part 4: Normalization\n",
+        "Are your relations normalized? Please provide a 2-3 sentence explanation of why/how they meet the following normal forms. Or, if they don't, describe what needs to be done to change them.\n",
+        "\n",
+        "1. **First Normal Form.** \n",
+        "\n",
+        "My relations meet the requirements for first normal form. The relations don't have any repeating groups, and a primary key has been identified. All nonkey attributes in the relation are dependent on the primary key.\n",
+        "\n",
+        "2. **Second Normal Form.**\n",
+        "\n",
+        "My relations meet the requirements for second normal form. The relations are in first normal form, and there are no partial dependencies.\n",
+        "\n",
+        "3. **Third Normal Form.** \n",
+        "\n",
+        "My relations meet the requirements for third normal form. The relations are in second normal form, and there are no transitive dependencies."
+      ],
+      "metadata": {
+        "id": "j9QCguK0SbxL"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#Part 5: Creating Tables\n",
+        "In this part, you'll be creating the tables to store the data about your monstrous students. This involves \"mapping\" the relational schema to an actual Postgres Databases. Here's what you need to do:\n",
+        "\n",
+        "1. CREATE a SQL table for each of the relations you identied in part 4.\n",
+        "2. Make sure all the attribututes are assigned appropriate data types. For example, INTEGER, VARCHAR, or DATE.\n",
+        "3.  Assign appropriate primary keys and foreign keys.\n",
+        "\n",
+        "In the starter code below, I've assumed you'll have tables along the line of the following. However, you should feel free to rename, add, or delete tables as needed!\n",
+        "\n",
+        "a. Monster\n",
+        "\n",
+        "b. Class\n",
+        "\n",
+        "c. Location\n",
+        "\n",
+        "d. Monster2Class\n",
+        "\n",
+        "e. Alumni\n",
+        "\n",
+        "f. Student\n",
+        "\n",
+        "g. Instructor"
+      ],
+      "metadata": {
+        "id": "S1lnI1iGEQpw"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "DROP TABLE IF EXISTS Monster;\n",
+        "CREATE TABLE Monster(\n",
+        "  monster_id INT PRIMARY KEY,\n",
+        "  monster_name VARCHAR(30) NOT NULL,\n",
+        "  monster_dob DATE NOT NULL CHECK (monster_dob < NOW()),\n",
+        "  monster_species VARCHAR(20),\n",
+        "  monster_diet VARCHAR(30),\n",
+        "  monster_type CHAR(7)\n",
+        ");"
+      ],
+      "metadata": {
+        "id": "rQ9CiBEREYCC",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "425e1d08-e64f-48d8-8cf4-794725f98d61"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "Done.\n",
+            "Done.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 2
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "DROP TABLE IF EXISTS Student;\n",
+        "CREATE TABLE Student(\n",
+        "  monster_id INT PRIMARY KEY REFERENCES Monster (monster_id),\n",
+        "  student_gpa DECIMAL(3,1),\n",
+        "  student_credits_completed SMALLINT\n",
+        ");"
+      ],
+      "metadata": {
+        "id": "RYOtxGSSQwxb",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "bb5030df-12aa-46e3-b7d7-5e5930838a3a"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "Done.\n",
+            "Done.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 3
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql \n",
+        "DROP TABLE IF EXISTS Alumni;\n",
+        "CREATE TABLE Alumni(\n",
+        "  monster_id INT PRIMARY KEY REFERENCES Monster (monster_id),\n",
+        "  alumni_grad_year CHAR(4),\n",
+        "  alumni_degree VARCHAR(30)\n",
+        ");"
+      ],
+      "metadata": {
+        "id": "tjh5KyL6Q0aj",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "0502e098-3506-489a-a1c5-da3164696825"
+      },
+      "execution_count": 4,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "Done.\n",
+            "Done.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 4
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "DROP TABLE IF EXISTS Instrcutor;\n",
+        "CREATE TABLE Instructor(\n",
+        "  monster_id INT PRIMARY KEY REFERENCES Monster (monster_id),\n",
+        "  instructor_license_number CHAR(10)\n",
+        ")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "N_dIKzcQuork",
+        "outputId": "ea441eb4-2fe9-4768-83fa-8067b037b04f"
+      },
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "Done.\n",
+            "Done.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 5
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "DROP TABLE IF EXISTS Location;\n",
+        "CREATE TABLE Location(\n",
+        "  id INT PRIMARY KEY,\n",
+        "  location_building_code VARCHAR(2),\n",
+        "  location_room_number SMALLINT,\n",
+        "  location_max_capacity SMALLINT\n",
+        ");"
+      ],
+      "metadata": {
+        "id": "HBjK9cPXQ7BU",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "eefa5db2-1c0f-44d3-f2bb-ac91db09f555"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "Done.\n",
+            "Done.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 6
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "DROP TABLE IF EXISTS Class;\n",
+        "CREATE TABLE Class(\n",
+        "  id INT PRIMARY KEY,\n",
+        "  class_title VARCHAR(30) NOT NULL,\n",
+        "  class_duration SMALLINT,\n",
+        "  class_meeting_days VARCHAR(7),\n",
+        "  class_start_time TIME,\n",
+        "  location_id INT REFERENCES Location (id),\n",
+        "  monster_id INT REFERENCES Monster (monster_id)\n",
+        ");"
+      ],
+      "metadata": {
+        "id": "0bRTWklbQ_vl",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "dcd780cd-f66e-45de-90e8-7a5836247785"
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "Done.\n",
+            "Done.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 7
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "DROP TABLE IF EXISTS Monster2Class;\n",
+        "CREATE TABLE Monster2Class(\n",
+        "  monster_id INT REFERENCES Monster (monster_id),\n",
+        "  class_id INT REFERENCES Class (id),\n",
+        "PRIMARY KEY (monster_id, class_id)\n",
+        ");"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "lYuBZ0GJE-J1",
+        "outputId": "b30e159b-e13f-460c-bc94-aa48bcad615a"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "Done.\n",
+            "Done.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 8
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#Part 6: Retrieving, Updating, and Deleting Data\n",
+        "In this part, you'll be inserting some data about Monsters, Classes, and Locations.\n"
+      ],
+      "metadata": {
+        "id": "4YM9-SBazuDg"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##6b. Inserting Data\n",
+        "Here are five monsters to insert your database:\n",
+        "\n",
+        "1. Cookie Monster (unknown species) was born on Nov 10, 1969. His eats only cookies. He has 3.2 GPA and has completed 76 credits.\n",
+        "2. Marceline (vampire) was born in Feb 3, 1056. She eats \"the color red\". She is a teacher with a 0.0 GPA and 0 credits completed.\n",
+        "3. Chewbacca (wookie) was born on May 25, 1977. He is an omnivore. He has a 2.6 GPA and has completed 24 credits.\n",
+        "4. Dracula (vampire) was born on Aug 15, 1543. He drinks blood. He has a 4.0 GPA with 112 credits completed. He also teachers classes.\n",
+        "5. Maleficient (dragon) was born on Oct 26, 1856. She is a carnviore. She has a 3.8 GPA with 63 credits completed.\n",
+        "6. Insert at least FOUR more monsters of your choice. At least two of these should have the same species.\n",
+        "\n",
+        "Now, show the data in the table.\n",
+        "\n",
+        "Here are three locations to insert into your database:\n",
+        "1. CL 101 (\"Castle level 1, room 1\") holds 100 people.\n",
+        "2. CL 503 (\"Castle level 5, room 3\") holds 34 people.\n",
+        "3. MU 220 (\"Monster Union room 220\") holds 12 people.\n",
+        "4. Insert at least TWO more locations into your database. Both should be in the same building. \n",
+        "\n",
+        "Now, show the data in the table.\n",
+        "\n",
+        "\n",
+        "Here are two classes to insert into your database:\n",
+        "1. Marceline teaches Intro to Guitar on TH from 2 PM to 4 PM in MU 220.\n",
+        "2. Dracula teaches Monster First Aid on MWF from 9 PM to 10 PM in CL 503.\n",
+        "2. Insert at least ONE more class.\n",
+        "\n",
+        "Now, show the data in the table.\n",
+        "\n",
+        "\n",
+        "\"ENROLL\" some students in your classes.\n",
+        "1. Cookie Monster, Chewbacca, and Maleficient (and perhaps some of the students you added) will take Monster First Aid.\n",
+        "2. Chewbacca and Malificient (and perhaps some of the students you added) will take Intro to Guitar.\n",
+        "3. Enroll some students in your own class!\n",
+        "Now, show the data in the table.\n",
+        "\n",
+        "\n",
+        "Finally, insert data for at least ONE alumni, and show the results."
+      ],
+      "metadata": {
+        "id": "_-a4-KWT0JUj"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "INSERT INTO Monster(monster_id, monster_name, monster_dob, monster_diet, monster_type) VALUES (1, 'Cookie Monster', '1969/11/10', 'cookies', 'S');\n",
+        "INSERT INTO Monster(monster_id, monster_name, monster_dob, monster_species, monster_diet, monster_type) VALUES (2, 'Marceline', '1056/2/3', 'vampire', 'the color red', 'I');\n",
+        "INSERT INTO Monster(monster_id, monster_name, monster_dob, monster_species, monster_diet, monster_type) VALUES (3, 'Chewbacca','1977/5/25', 'wookie', 'omnivore', 'S');\n",
+        "INSERT INTO Monster(monster_id, monster_name, monster_dob, monster_species, monster_diet, monster_type) VALUES (4, 'Dracula', '1543/8/15', 'vampire', 'blood', 'S, I');\n",
+        "INSERT INTO Monster(monster_id, monster_name, monster_dob, monster_species, monster_diet, monster_type) VALUES (5, 'Maleficient', '1856/10/26', 'dragon', 'carnivore', 'S');\n",
+        "INSERT INTO Monster(monster_id, monster_name, monster_dob, monster_species, monster_diet, monster_type) VALUES (6, 'Shrek', '1979/6/18', 'ogre', 'swamp creatures', 'A');\n",
+        "INSERT INTO Monster(monster_id, monster_name, monster_dob, monster_species, monster_type) VALUES (7, 'Thing', '1967/7/25', 'hand', 'S');\n",
+        "INSERT INTO Monster(monster_id, monster_name, monster_dob, monster_species, monster_diet, monster_type) VALUES (8, 'Fiona', '1980/12/9', 'ogre', 'frogs and rats', 'A');\n",
+        "INSERT INTO Monster(monster_id, monster_name, monster_dob, monster_diet, monster_type) VALUES (9, 'Mike Wazowski', '1987/2/19', 'omnivore', 'A');"
+      ],
+      "metadata": {
+        "id": "fjZx_LAh0IQI",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "6cbf421a-fa06-42cd-ac07-765ec635cffb"
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 9
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT * FROM Monster;"
+      ],
+      "metadata": {
+        "id": "siY0_HxESlG3",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 263
+        },
+        "outputId": "e7d5bfbf-f137-47c0-e110-2b6242c71b66"
+      },
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "9 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(1, 'Cookie Monster', datetime.date(1969, 11, 10), None, 'cookies', 'S      '),\n",
+              " (2, 'Marceline', datetime.date(1056, 2, 3), 'vampire', 'the color red', 'I      '),\n",
+              " (3, 'Chewbacca', datetime.date(1977, 5, 25), 'wookie', 'omnivore', 'S      '),\n",
+              " (4, 'Dracula', datetime.date(1543, 8, 15), 'vampire', 'blood', 'S, I   '),\n",
+              " (5, 'Maleficient', datetime.date(1856, 10, 26), 'dragon', 'carnivore', 'S      '),\n",
+              " (6, 'Shrek', datetime.date(1979, 6, 18), 'ogre', 'swamp creatures', 'A      '),\n",
+              " (7, 'Thing', datetime.date(1967, 7, 25), 'hand', None, 'S      '),\n",
+              " (8, 'Fiona', datetime.date(1980, 12, 9), 'ogre', 'frogs and rats', 'A      '),\n",
+              " (9, 'Mike Wazowski', datetime.date(1987, 2, 19), None, 'omnivore', 'A      ')]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_id</th>\n",
+              "            <th>monster_name</th>\n",
+              "            <th>monster_dob</th>\n",
+              "            <th>monster_species</th>\n",
+              "            <th>monster_diet</th>\n",
+              "            <th>monster_type</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>1</td>\n",
+              "            <td>Cookie Monster</td>\n",
+              "            <td>1969-11-10</td>\n",
+              "            <td>None</td>\n",
+              "            <td>cookies</td>\n",
+              "            <td>S      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>2</td>\n",
+              "            <td>Marceline</td>\n",
+              "            <td>1056-02-03</td>\n",
+              "            <td>vampire</td>\n",
+              "            <td>the color red</td>\n",
+              "            <td>I      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>3</td>\n",
+              "            <td>Chewbacca</td>\n",
+              "            <td>1977-05-25</td>\n",
+              "            <td>wookie</td>\n",
+              "            <td>omnivore</td>\n",
+              "            <td>S      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>4</td>\n",
+              "            <td>Dracula</td>\n",
+              "            <td>1543-08-15</td>\n",
+              "            <td>vampire</td>\n",
+              "            <td>blood</td>\n",
+              "            <td>S, I   </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>5</td>\n",
+              "            <td>Maleficient</td>\n",
+              "            <td>1856-10-26</td>\n",
+              "            <td>dragon</td>\n",
+              "            <td>carnivore</td>\n",
+              "            <td>S      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>6</td>\n",
+              "            <td>Shrek</td>\n",
+              "            <td>1979-06-18</td>\n",
+              "            <td>ogre</td>\n",
+              "            <td>swamp creatures</td>\n",
+              "            <td>A      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>7</td>\n",
+              "            <td>Thing</td>\n",
+              "            <td>1967-07-25</td>\n",
+              "            <td>hand</td>\n",
+              "            <td>None</td>\n",
+              "            <td>S      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>8</td>\n",
+              "            <td>Fiona</td>\n",
+              "            <td>1980-12-09</td>\n",
+              "            <td>ogre</td>\n",
+              "            <td>frogs and rats</td>\n",
+              "            <td>A      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>9</td>\n",
+              "            <td>Mike Wazowski</td>\n",
+              "            <td>1987-02-19</td>\n",
+              "            <td>None</td>\n",
+              "            <td>omnivore</td>\n",
+              "            <td>A      </td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 10
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "INSERT INTO Student(monster_id, student_gpa, student_credits_completed) VALUES (1, 3.2, 76);\n",
+        "INSERT INTO Student(monster_id, student_gpa, student_credits_completed) VALUES (3, 2.6, 24);\n",
+        "INSERT INTO Student(monster_id, student_gpa, student_credits_completed) VALUES (4, 4.0, 112);\n",
+        "INSERT INTO Student(monster_id, student_gpa, student_credits_completed) VALUES (5, 3.8, 63);\n",
+        "INSERT INTO Student(monster_id, student_gpa, student_credits_completed) VALUES (7, 2.9, 54);"
+      ],
+      "metadata": {
+        "id": "F9fltC-XRqym",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "8d6a7fb2-c4b0-4291-8539-aae9d1fd8513"
+      },
+      "execution_count": 11,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 11
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT * FROM Student;"
+      ],
+      "metadata": {
+        "id": "yi4MxFwVRtPv",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 179
+        },
+        "outputId": "6110dfff-3abb-46de-ea2e-8ca3024f7540"
+      },
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "5 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(1, Decimal('3.2'), 76),\n",
+              " (3, Decimal('2.6'), 24),\n",
+              " (4, Decimal('4.0'), 112),\n",
+              " (5, Decimal('3.8'), 63),\n",
+              " (7, Decimal('2.9'), 54)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_id</th>\n",
+              "            <th>student_gpa</th>\n",
+              "            <th>student_credits_completed</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>1</td>\n",
+              "            <td>3.2</td>\n",
+              "            <td>76</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>3</td>\n",
+              "            <td>2.6</td>\n",
+              "            <td>24</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>4</td>\n",
+              "            <td>4.0</td>\n",
+              "            <td>112</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>5</td>\n",
+              "            <td>3.8</td>\n",
+              "            <td>63</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>7</td>\n",
+              "            <td>2.9</td>\n",
+              "            <td>54</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 12
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "INSERT INTO Alumni(monster_id, alumni_grad_year, alumni_degree) VALUES (6, '2000', 'Computer Science');\n",
+        "INSERT INTO Alumni(monster_id, alumni_grad_year, alumni_degree) VALUES (8, '2001', 'Accounting');\n",
+        "INSERT INTO Alumni(monster_id, alumni_grad_year, alumni_degree) VALUES (9, '2010', 'Scaring');"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "FGX2d-ryqppp",
+        "outputId": "dc834ec7-4b0a-4b02-c954-e4f2567f327e"
+      },
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 13
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT * FROM Alumni;"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 137
+        },
+        "id": "3IwUAnuCr0qG",
+        "outputId": "7478c253-84cb-4f78-e098-f1b192228da6"
+      },
+      "execution_count": 14,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "3 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(6, '2000', 'Computer Science'),\n",
+              " (8, '2001', 'Accounting'),\n",
+              " (9, '2010', 'Scaring')]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_id</th>\n",
+              "            <th>alumni_grad_year</th>\n",
+              "            <th>alumni_degree</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>6</td>\n",
+              "            <td>2000</td>\n",
+              "            <td>Computer Science</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>8</td>\n",
+              "            <td>2001</td>\n",
+              "            <td>Accounting</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>9</td>\n",
+              "            <td>2010</td>\n",
+              "            <td>Scaring</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 14
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "INSERT INTO Instructor(monster_id, instructor_license_number) VALUES (2, 'ik287yb907');\n",
+        "INSERT INTO Instructor(monster_id, instructor_license_number) VALUES (4, 'qv649bg148');"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "TdacMiWDwBWP",
+        "outputId": "1ddf8b92-7803-4286-e114-7ff39651135a"
+      },
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 15
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT * FROM Instructor;"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 116
+        },
+        "id": "aJNbv4N9w5dL",
+        "outputId": "e59337a4-a073-46ba-dc31-fd60559b7ddf"
+      },
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "2 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(2, 'ik287yb907'), (4, 'qv649bg148')]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_id</th>\n",
+              "            <th>instructor_license_number</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>2</td>\n",
+              "            <td>ik287yb907</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>4</td>\n",
+              "            <td>qv649bg148</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 16
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "INSERT INTO Location(id, location_building_code, location_room_number, location_max_capacity) VALUES (1, 'CL', 101, 100);\n",
+        "INSERT INTO Location(id, location_building_code, location_room_number, location_max_capacity) VALUES (2, 'CL', 503, 34);\n",
+        "INSERT INTO Location(id, location_building_code, location_room_number, location_max_capacity) VALUES (3, 'MU', 220, 12);\n",
+        "INSERT INTO Location(id, location_building_code, location_room_number, location_max_capacity) VALUES (4, 'SB', 412, 250);\n",
+        "INSERT INTO Location(id, location_building_code, location_room_number, location_max_capacity) VALUES (5, 'SB', 303, 200);"
+      ],
+      "metadata": {
+        "id": "FTHAyubMRvqa",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "df2f8654-074d-400e-f999-037914f43835"
+      },
+      "execution_count": 17,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 17
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT * FROM Location;"
+      ],
+      "metadata": {
+        "id": "5vzCyLcPRzUu",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 179
+        },
+        "outputId": "40c3a037-05b8-4bf1-bc34-01bda659db7d"
+      },
+      "execution_count": 18,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "5 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(1, 'CL', 101, 100),\n",
+              " (2, 'CL', 503, 34),\n",
+              " (3, 'MU', 220, 12),\n",
+              " (4, 'SB', 412, 250),\n",
+              " (5, 'SB', 303, 200)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>id</th>\n",
+              "            <th>location_building_code</th>\n",
+              "            <th>location_room_number</th>\n",
+              "            <th>location_max_capacity</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>1</td>\n",
+              "            <td>CL</td>\n",
+              "            <td>101</td>\n",
+              "            <td>100</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>2</td>\n",
+              "            <td>CL</td>\n",
+              "            <td>503</td>\n",
+              "            <td>34</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>3</td>\n",
+              "            <td>MU</td>\n",
+              "            <td>220</td>\n",
+              "            <td>12</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>4</td>\n",
+              "            <td>SB</td>\n",
+              "            <td>412</td>\n",
+              "            <td>250</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>5</td>\n",
+              "            <td>SB</td>\n",
+              "            <td>303</td>\n",
+              "            <td>200</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 18
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "INSERT INTO Class(id, class_title, class_duration, class_meeting_days, class_start_time, location_id, monster_id) VALUES (1, 'Intro to Guitar', 120, 'TH', '14:00:00', 3, 2);\n",
+        "INSERT INTO Class(id, class_title, class_duration, class_meeting_days, class_start_time, location_id, monster_id) VALUES (2, 'Monster First Aid', 60, 'MWF', '21:00:00', 2, 4);\n",
+        "INSERT INTO Class(id, class_title, class_duration, class_meeting_days, class_start_time, location_id, monster_id) VALUES (3, 'Scaring II', 90, 'TH', '08:00:00', 5, 2);"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "DYIJlZjJd6z8",
+        "outputId": "ad784890-4c85-459f-ae62-36d708a73f32"
+      },
+      "execution_count": 19,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 19
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT * FROM Class;"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 137
+        },
+        "id": "_H0SGs_GhKGt",
+        "outputId": "c7a147cc-44d7-4de4-cb18-90e23c303854"
+      },
+      "execution_count": 20,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "3 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(1, 'Intro to Guitar', 120, 'TH', datetime.time(14, 0), 3, 2),\n",
+              " (2, 'Monster First Aid', 60, 'MWF', datetime.time(21, 0), 2, 4),\n",
+              " (3, 'Scaring II', 90, 'TH', datetime.time(8, 0), 5, 2)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>id</th>\n",
+              "            <th>class_title</th>\n",
+              "            <th>class_duration</th>\n",
+              "            <th>class_meeting_days</th>\n",
+              "            <th>class_start_time</th>\n",
+              "            <th>location_id</th>\n",
+              "            <th>monster_id</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>1</td>\n",
+              "            <td>Intro to Guitar</td>\n",
+              "            <td>120</td>\n",
+              "            <td>TH</td>\n",
+              "            <td>14:00:00</td>\n",
+              "            <td>3</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>2</td>\n",
+              "            <td>Monster First Aid</td>\n",
+              "            <td>60</td>\n",
+              "            <td>MWF</td>\n",
+              "            <td>21:00:00</td>\n",
+              "            <td>2</td>\n",
+              "            <td>4</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>3</td>\n",
+              "            <td>Scaring II</td>\n",
+              "            <td>90</td>\n",
+              "            <td>TH</td>\n",
+              "            <td>08:00:00</td>\n",
+              "            <td>5</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 20
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "INSERT INTO Monster2Class(monster_id, class_id) VALUES (1, 2);\n",
+        "INSERT INTO Monster2Class(monster_id, class_id) VALUES (3, 2);\n",
+        "INSERT INTO Monster2Class(monster_id, class_id) VALUES (5, 2);\n",
+        "INSERT INTO Monster2Class(monster_id, class_id) VALUES (7, 2);\n",
+        "INSERT INTO Monster2Class(monster_id, class_id) VALUES (3, 1);\n",
+        "INSERT INTO Monster2Class(monster_id, class_id) VALUES (5, 1);\n",
+        "INSERT INTO Monster2Class(monster_id, class_id) VALUES (7, 1);\n",
+        "INSERT INTO Monster2Class(monster_id, class_id) VALUES (4, 3);\n",
+        "INSERT INTO Monster2Class(monster_id, class_id) VALUES (5, 3);\n",
+        "INSERT INTO Monster2Class(monster_id, class_id) VALUES (7, 3);"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "i_z-iJm6i4rl",
+        "outputId": "60cda015-2306-4d7a-9676-9406337f5f80"
+      },
+      "execution_count": 21,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 21
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT * FROM Monster2Class;"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 284
+        },
+        "id": "HGTPrahIlMHF",
+        "outputId": "c08f96e2-f8cf-4a38-e928-69e296771c6e"
+      },
+      "execution_count": 22,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "10 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(1, 2),\n",
+              " (3, 2),\n",
+              " (5, 2),\n",
+              " (7, 2),\n",
+              " (3, 1),\n",
+              " (5, 1),\n",
+              " (7, 1),\n",
+              " (4, 3),\n",
+              " (5, 3),\n",
+              " (7, 3)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_id</th>\n",
+              "            <th>class_id</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>1</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>3</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>5</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>7</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>3</td>\n",
+              "            <td>1</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>5</td>\n",
+              "            <td>1</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>7</td>\n",
+              "            <td>1</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>4</td>\n",
+              "            <td>3</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>5</td>\n",
+              "            <td>3</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>7</td>\n",
+              "            <td>3</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 22
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#6c: Updating Data\n",
+        "In this section, I'd like you to run the following updates\n",
+        "\n",
+        "1. MU 220 has been expanded! It can now hold 25 students, instead of 12.\n",
+        "2. Another semester has passed. Add 12 credits to each student's record.\n",
+        "3. Chewbacca has decided to become a vegetarian. Change his diet to \"herbivore\".\n",
+        "\n",
+        "After each update please SELECT from the table to show the results."
+      ],
+      "metadata": {
+        "id": "q_lXu0xWXQNB"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "UPDATE Location\n",
+        "SET location_max_capacity = 25\n",
+        "WHERE id = 3;"
+      ],
+      "metadata": {
+        "id": "fPvV_MS8Yv7c",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "d05a7f64-9d7a-4537-ade2-23125885557a"
+      },
+      "execution_count": 23,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 23
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT location_max_capacity FROM Location WHERE id = 3;"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 95
+        },
+        "id": "df5w89QPxzVb",
+        "outputId": "48519cd5-3390-408d-e7d4-6a9020d0969b"
+      },
+      "execution_count": 24,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(25,)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>location_max_capacity</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>25</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 24
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql \n",
+        "UPDATE Student\n",
+        "SET student_credits_completed = student_credits_completed + 12;"
+      ],
+      "metadata": {
+        "id": "gkz-jWo7Zb9l",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "a43cc6ce-6cb7-46db-97f8-e18a2c044e5b"
+      },
+      "execution_count": 25,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "5 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 25
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT student_credits_completed FROM Student;"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 179
+        },
+        "id": "vjyEWWhfyWSp",
+        "outputId": "98f0f07d-c445-4b53-8ad1-bc4eafe262f2"
+      },
+      "execution_count": 26,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "5 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(88,), (36,), (124,), (75,), (66,)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>student_credits_completed</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>88</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>36</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>124</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>75</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>66</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 26
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql \n",
+        "UPDATE Monster\n",
+        "SET monster_diet = 'herbivore'\n",
+        "WHERE monster_id = 3;"
+      ],
+      "metadata": {
+        "id": "dez5qUQOZg-N",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "7824efc3-2344-45e5-fce4-bb97686af8a5"
+      },
+      "execution_count": 27,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 27
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT monster_diet FROM Monster WHERE monster_id = 3;"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 95
+        },
+        "id": "XSACz1Zczhgv",
+        "outputId": "dd46f5c4-a1c4-4e24-f0f2-2c3846164c0a"
+      },
+      "execution_count": 28,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[('herbivore',)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_diet</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>herbivore</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 28
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#Part 7: SQL Queries\n",
+        "In this section, you'll be demonstrating your ability to retrieve data from the database you've created using SQL queries. "
+      ],
+      "metadata": {
+        "id": "WLW7AEO8IeAs"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##7a: Simple Single table queries\n",
+        "Retreive a list of monsters ordered alphabetically by name. Limit your results to 5."
+      ],
+      "metadata": {
+        "id": "3GkuO29zIt7p"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "-- 7a\n",
+        "SELECT *\n",
+        "FROM Monster\n",
+        "ORDER BY monster_name\n",
+        "LIMIT 5;"
+      ],
+      "metadata": {
+        "id": "zkrMoA1aJiO_",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 179
+        },
+        "outputId": "55d1feb3-c283-42df-8a49-32b08c934369"
+      },
+      "execution_count": 29,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "5 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(3, 'Chewbacca', datetime.date(1977, 5, 25), 'wookie', 'herbivore', 'S      '),\n",
+              " (1, 'Cookie Monster', datetime.date(1969, 11, 10), None, 'cookies', 'S      '),\n",
+              " (4, 'Dracula', datetime.date(1543, 8, 15), 'vampire', 'blood', 'S, I   '),\n",
+              " (8, 'Fiona', datetime.date(1980, 12, 9), 'ogre', 'frogs and rats', 'A      '),\n",
+              " (5, 'Maleficient', datetime.date(1856, 10, 26), 'dragon', 'carnivore', 'S      ')]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_id</th>\n",
+              "            <th>monster_name</th>\n",
+              "            <th>monster_dob</th>\n",
+              "            <th>monster_species</th>\n",
+              "            <th>monster_diet</th>\n",
+              "            <th>monster_type</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>3</td>\n",
+              "            <td>Chewbacca</td>\n",
+              "            <td>1977-05-25</td>\n",
+              "            <td>wookie</td>\n",
+              "            <td>herbivore</td>\n",
+              "            <td>S      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>1</td>\n",
+              "            <td>Cookie Monster</td>\n",
+              "            <td>1969-11-10</td>\n",
+              "            <td>None</td>\n",
+              "            <td>cookies</td>\n",
+              "            <td>S      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>4</td>\n",
+              "            <td>Dracula</td>\n",
+              "            <td>1543-08-15</td>\n",
+              "            <td>vampire</td>\n",
+              "            <td>blood</td>\n",
+              "            <td>S, I   </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>8</td>\n",
+              "            <td>Fiona</td>\n",
+              "            <td>1980-12-09</td>\n",
+              "            <td>ogre</td>\n",
+              "            <td>frogs and rats</td>\n",
+              "            <td>A      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>5</td>\n",
+              "            <td>Maleficient</td>\n",
+              "            <td>1856-10-26</td>\n",
+              "            <td>dragon</td>\n",
+              "            <td>carnivore</td>\n",
+              "            <td>S      </td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 29
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##7b. Single-table queries with WHERE and LIKE\n",
+        "Retrieve JUST the classes that meet on Wednesday (where Wednesday is the 'W' in strings like 'MWF')."
+      ],
+      "metadata": {
+        "id": "cW-sKiS1JmBN"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "-- 7b\n",
+        "SELECT *\n",
+        "FROM Class\n",
+        "WHERE class_meeting_days LIKE '%W%';"
+      ],
+      "metadata": {
+        "id": "NQ7JJojbIoPP",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 95
+        },
+        "outputId": "7952ed31-b4a4-4047-ad1b-75781daf250c"
+      },
+      "execution_count": 30,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(2, 'Monster First Aid', 60, 'MWF', datetime.time(21, 0), 2, 4)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>id</th>\n",
+              "            <th>class_title</th>\n",
+              "            <th>class_duration</th>\n",
+              "            <th>class_meeting_days</th>\n",
+              "            <th>class_start_time</th>\n",
+              "            <th>location_id</th>\n",
+              "            <th>monster_id</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>2</td>\n",
+              "            <td>Monster First Aid</td>\n",
+              "            <td>60</td>\n",
+              "            <td>MWF</td>\n",
+              "            <td>21:00:00</td>\n",
+              "            <td>2</td>\n",
+              "            <td>4</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 30
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##7c. Single-table queries with aggregate functions\n",
+        "Retrieve the minimum, maximum, and average GPA included in your database. You should label the columns \"Min GPA\", \"Max GPA\", and \"Avg GPA\"."
+      ],
+      "metadata": {
+        "id": "yxz-iQe8KClT"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql \n",
+        "--7c\n",
+        "SELECT MIN(student_gpa) AS \"Min GPA\", MAX(student_gpa) AS \"Max GPA\", ROUND(AVG(student_gpa), 1) AS \"Avg GPA\"\n",
+        "FROM Student;"
+      ],
+      "metadata": {
+        "id": "ueRRG9EHKhTS",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 95
+        },
+        "outputId": "c13d78bf-aa94-480c-dd1f-81373d10f5f2"
+      },
+      "execution_count": 31,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "1 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(Decimal('2.6'), Decimal('4.0'), Decimal('3.3'))]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>Min GPA</th>\n",
+              "            <th>Max GPA</th>\n",
+              "            <th>Avg GPA</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>2.6</td>\n",
+              "            <td>4.0</td>\n",
+              "            <td>3.3</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 31
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##7d. Single table queries with GROUP BY\n",
+        "Retrieve a list of each monster species included in the database, along with a count of how many monsters are members of the species."
+      ],
+      "metadata": {
+        "id": "kQ87q9WNKrfw"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "--7d\n",
+        "SELECT monster_species, COUNT(monster_species)\n",
+        "FROM Monster\n",
+        "GROUP BY monster_species;"
+      ],
+      "metadata": {
+        "id": "VhumuTuBLD9s",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 200
+        },
+        "outputId": "dd29a9e0-a4c5-428f-db34-e84b34bec0bd"
+      },
+      "execution_count": 32,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "6 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[('dragon', 1),\n",
+              " (None, 0),\n",
+              " ('ogre', 2),\n",
+              " ('wookie', 1),\n",
+              " ('hand', 1),\n",
+              " ('vampire', 2)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_species</th>\n",
+              "            <th>count</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>dragon</td>\n",
+              "            <td>1</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>None</td>\n",
+              "            <td>0</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>ogre</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>wookie</td>\n",
+              "            <td>1</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>hand</td>\n",
+              "            <td>1</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>vampire</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 32
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##7e. Single-table queries with HAVING\n",
+        "Retrieve a list of the buildings (not rooms!) in your data that have a total capacity of more than 20. (A building's capacity is simply the sum of the capacities of all the classrooms it contains)."
+      ],
+      "metadata": {
+        "id": "sFZHleXyLHiH"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "--7e\n",
+        "SELECT location_building_code, SUM(location_max_capacity)\n",
+        "FROM Location\n",
+        "GROUP BY location_building_code\n",
+        "HAVING SUM(location_max_capacity) > 20;"
+      ],
+      "metadata": {
+        "id": "dj75qVSbM05W",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 137
+        },
+        "outputId": "7d61b8e7-1dda-40cc-8223-1bed3fcfbb30"
+      },
+      "execution_count": 33,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "3 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[('CL', 134), ('MU', 25), ('SB', 450)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>location_building_code</th>\n",
+              "            <th>sum</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>CL</td>\n",
+              "            <td>134</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>MU</td>\n",
+              "            <td>25</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>SB</td>\n",
+              "            <td>450</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 33
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##7f. Subqueries\n",
+        "Retrieve a list of monsters names and species, together with a count of how many members of that species are in the database."
+      ],
+      "metadata": {
+        "id": "7fXE7V2lM3dX"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "-- 7f\n",
+        "SELECT monster_name, monster_species,\n",
+        "(SELECT COUNT(monster_id)\n",
+        "FROM Monster MX\n",
+        "WHERE MX.monster_species = MY.monster_species)\n",
+        "FROM Monster MY;"
+      ],
+      "metadata": {
+        "id": "2ugURwpWNWgN",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 263
+        },
+        "outputId": "57c00e1c-c170-43c9-cf6c-38f1b4a870b3"
+      },
+      "execution_count": 34,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "9 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[('Cookie Monster', None, 0),\n",
+              " ('Marceline', 'vampire', 2),\n",
+              " ('Dracula', 'vampire', 2),\n",
+              " ('Maleficient', 'dragon', 1),\n",
+              " ('Shrek', 'ogre', 2),\n",
+              " ('Thing', 'hand', 1),\n",
+              " ('Fiona', 'ogre', 2),\n",
+              " ('Mike Wazowski', None, 0),\n",
+              " ('Chewbacca', 'wookie', 1)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_name</th>\n",
+              "            <th>monster_species</th>\n",
+              "            <th>count</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>Cookie Monster</td>\n",
+              "            <td>None</td>\n",
+              "            <td>0</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>Marceline</td>\n",
+              "            <td>vampire</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>Dracula</td>\n",
+              "            <td>vampire</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>Maleficient</td>\n",
+              "            <td>dragon</td>\n",
+              "            <td>1</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>Shrek</td>\n",
+              "            <td>ogre</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>Thing</td>\n",
+              "            <td>hand</td>\n",
+              "            <td>1</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>Fiona</td>\n",
+              "            <td>ogre</td>\n",
+              "            <td>2</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>Mike Wazowski</td>\n",
+              "            <td>None</td>\n",
+              "            <td>0</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>Chewbacca</td>\n",
+              "            <td>wookie</td>\n",
+              "            <td>1</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 34
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#7g. Simple multi-table queries with JOIN\n",
+        "Retrieve the names and GPAs of students enrolled in Intro to Guitar."
+      ],
+      "metadata": {
+        "id": "G9tu3WOMNoW0"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "-- 7g\n",
+        "SELECT M.monster_name, S.student_gpa\n",
+        "FROM Student S\n",
+        "JOIN Monster M ON S.monster_id = M.monster_id\n",
+        "JOIN Monster2Class MC ON M.monster_id = MC.monster_id\n",
+        "JOIN Class C ON MC.class_id = C.id\n",
+        "WHERE C.class_title = 'Intro to Guitar';"
+      ],
+      "metadata": {
+        "id": "gWQyk7UtM2OC",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 137
+        },
+        "outputId": "b0b6ffff-6a4c-4c79-f2fb-8759292be929"
+      },
+      "execution_count": 35,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "3 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[('Chewbacca', Decimal('2.6')),\n",
+              " ('Maleficient', Decimal('3.8')),\n",
+              " ('Thing', Decimal('2.9'))]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_name</th>\n",
+              "            <th>student_gpa</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>Chewbacca</td>\n",
+              "            <td>2.6</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>Maleficient</td>\n",
+              "            <td>3.8</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>Thing</td>\n",
+              "            <td>2.9</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 35
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##7h. More complex multi-table queries\n",
+        "Retrieve the total students taught by each teacher in the database. You should have one row of output for each teacher with their name and the total number of students."
+      ],
+      "metadata": {
+        "id": "8opkfaWQN71T"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT M.monster_name, COUNT(DISTINCT MC.monster_id)\n",
+        "FROM Monster2Class MC\n",
+        "JOIN Class C ON MC.class_id = C.id\n",
+        "JOIN Monster M ON C.monster_id = M.monster_id\n",
+        "GROUP BY M.monster_name;"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 116
+        },
+        "id": "ztO4-HUHcMb1",
+        "outputId": "66c74d70-5524-4772-c3bc-972d0e4c6a90"
+      },
+      "execution_count": 59,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "2 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[('Dracula', 4), ('Marceline', 4)]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_name</th>\n",
+              "            <th>count</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>Dracula</td>\n",
+              "            <td>4</td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>Marceline</td>\n",
+              "            <td>4</td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 59
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##7i. Creation of Views\n",
+        "Create a VIEW based on a SQL query of your choice. Now \"SELECT *\" from this view to show the results."
+      ],
+      "metadata": {
+        "id": "KJNhjRhrOOLT"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "-- 7i\n",
+        "CREATE VIEW Student_View AS SELECT *\n",
+        "                            FROM Student NATURAL JOIN Monster;"
+      ],
+      "metadata": {
+        "id": "BfQnU57YOsTS",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "86dd673c-c49b-45d2-c706-76ed1c22097a"
+      },
+      "execution_count": 37,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "Done.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 37
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "SELECT * FROM Student_View;"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 179
+        },
+        "id": "VPSwtbQvU3LD",
+        "outputId": "4eec712e-05de-4b54-c49e-3f7c4c985cdc"
+      },
+      "execution_count": 38,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "5 rows affected.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(1, Decimal('3.2'), 88, 'Cookie Monster', datetime.date(1969, 11, 10), None, 'cookies', 'S      '),\n",
+              " (3, Decimal('2.6'), 36, 'Chewbacca', datetime.date(1977, 5, 25), 'wookie', 'herbivore', 'S      '),\n",
+              " (4, Decimal('4.0'), 124, 'Dracula', datetime.date(1543, 8, 15), 'vampire', 'blood', 'S, I   '),\n",
+              " (5, Decimal('3.8'), 75, 'Maleficient', datetime.date(1856, 10, 26), 'dragon', 'carnivore', 'S      '),\n",
+              " (7, Decimal('2.9'), 66, 'Thing', datetime.date(1967, 7, 25), 'hand', None, 'S      ')]"
+            ],
+            "text/html": [
+              "<table>\n",
+              "    <thead>\n",
+              "        <tr>\n",
+              "            <th>monster_id</th>\n",
+              "            <th>student_gpa</th>\n",
+              "            <th>student_credits_completed</th>\n",
+              "            <th>monster_name</th>\n",
+              "            <th>monster_dob</th>\n",
+              "            <th>monster_species</th>\n",
+              "            <th>monster_diet</th>\n",
+              "            <th>monster_type</th>\n",
+              "        </tr>\n",
+              "    </thead>\n",
+              "    <tbody>\n",
+              "        <tr>\n",
+              "            <td>1</td>\n",
+              "            <td>3.2</td>\n",
+              "            <td>88</td>\n",
+              "            <td>Cookie Monster</td>\n",
+              "            <td>1969-11-10</td>\n",
+              "            <td>None</td>\n",
+              "            <td>cookies</td>\n",
+              "            <td>S      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>3</td>\n",
+              "            <td>2.6</td>\n",
+              "            <td>36</td>\n",
+              "            <td>Chewbacca</td>\n",
+              "            <td>1977-05-25</td>\n",
+              "            <td>wookie</td>\n",
+              "            <td>herbivore</td>\n",
+              "            <td>S      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>4</td>\n",
+              "            <td>4.0</td>\n",
+              "            <td>124</td>\n",
+              "            <td>Dracula</td>\n",
+              "            <td>1543-08-15</td>\n",
+              "            <td>vampire</td>\n",
+              "            <td>blood</td>\n",
+              "            <td>S, I   </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>5</td>\n",
+              "            <td>3.8</td>\n",
+              "            <td>75</td>\n",
+              "            <td>Maleficient</td>\n",
+              "            <td>1856-10-26</td>\n",
+              "            <td>dragon</td>\n",
+              "            <td>carnivore</td>\n",
+              "            <td>S      </td>\n",
+              "        </tr>\n",
+              "        <tr>\n",
+              "            <td>7</td>\n",
+              "            <td>2.9</td>\n",
+              "            <td>66</td>\n",
+              "            <td>Thing</td>\n",
+              "            <td>1967-07-25</td>\n",
+              "            <td>hand</td>\n",
+              "            <td>None</td>\n",
+              "            <td>S      </td>\n",
+              "        </tr>\n",
+              "    </tbody>\n",
+              "</table>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 38
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##7g. Creation of Indexes.\n",
+        "Create an index on the column that contains the Monster's names. "
+      ],
+      "metadata": {
+        "id": "bcPLrX2OSlhb"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%sql\n",
+        "CREATE INDEX Name_Index ON Monster (monster_name);"
+      ],
+      "metadata": {
+        "id": "uJq4y22oTesf",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "7be0dc99-48ae-4d6f-8beb-c6762c451b7e"
+      },
+      "execution_count": 39,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * postgresql://postgres:***@localhost/my_data\n",
+            "Done.\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 39
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#8. Database Design Philosophy\n",
+        "In 150 to 200 words, answer the question **\"What are the keys to designing a successful database, and how is this reflected in your own work here?\"**\n",
+        "\n",
+        "There are many keys to designing a successful database. One of the keys to designing a successful database is keys! You need to include priamry keys in your database in order to ensure entity integrity. You need foreign keys in order to ensure referential integrity. Another key to good database design is business rules. Clear, consice, and precise business rules allow the database designer to easily translate them to a conceptual model, such as an entity-relationship model using entity-relationship diagrams. Entity-realtionship diagrams allow the database designer to start thinking about their business rules and how they will map them to entities, attributes, and relationships. From there, it would be a good idea for the database designer to normalize their relations. Normalization allows the database designer to weed out any repeating groups, partial dependencies, transitive dependencies, and data redundancies in their database. The process of normalization is likely to create new entities, attributes, and/or relationships, so it is a good idea to go back and revise the entity-relationship diagram after normalization takes place."
+      ],
+      "metadata": {
+        "id": "TRd_xBB4S6Sh"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#9. Be Creative!\n",
+        "In 150 to 200 words, tell me about what you've done (or will do, in this section) that goes above and beyond the \"requirements\" of the assignment. Why did you choose to do this? What did you learn from doing it?\n",
+        "\n",
+        "In order to go above and beyond the requirements of the assignment, I have added a supertype as well as a few subtypes to my database. The supertype I added is the entitty titled \"Monster\", and the subtypes I have added are titled \"Student\", \"Instructor\", and \"Alumni\". I chose to do this because there were a few attributes that applied to some of the entity instances in the \"Monster\" table, but not all. Adding a supertype and subtypes reduced the number of nulls in the \"Monster\" entity. I also added a subtype discriminator to the \"Monster\" sypertype to denote which entity instances belong to which subtypes. I came across a few road bumps when implementing the supertype and subtypes, I knew I wanted to add an \"Instructor\" subtype, but there weren't any attributes that would fit nicely into this entity, so I created the \"instructor_license_number\" attribute. The \"student_gpa\" and \"student_credits_completed\" attributes fit nicely in the \"Student\" subtype, and the \"alumni_grad_year\" and \"alumni_degree\" attributes fit nicely in the \"Alumni\" attribute."
+      ],
+      "metadata": {
+        "id": "tmFI8A-HTvLX"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#10. Share Work With Me on Github\n",
+        "Finally, I'd like you to share your work with me on Github. If you are interesting in working in computer science or IT, it's good to have a basic understanding of how Github works, as its something like an industry \"standard\" way of sharing code. \n",
+        " \n",
+        "Here's what you need to do:\n",
+        "1. Create an account on https://github.com/ \n",
+        "2. Create a PUBLIC repository called \"database_sql\".\n",
+        "3. Save your **completed** lab to this repository. From colab, all you need to do is go to \"File: Save a copy in Github.\"\n",
+        "\n",
+        "An in-depth tutorial on using Github is here:\n",
+        "https://docs.github.com/en/get-started/quickstart/hello-world \n",
+        "The only things you need to worry about are (a) creating an account and (b) creating a repository. We won't be worry about branches, commits, or pulls (though you are free to read up on these!). \n",
+        "\n",
+        "Once you've done this, please write down your:\n",
+        "\n",
+        "USERNAME: rlisovskis\n",
+        "\n",
+        "REPOSITORY LINK: https://github.com/rlisovskis/database_sql\n",
+        "\n",
+        "And that's it! I've enjoyed having you in class--enjoy the rest of the semster :).\n",
+        "\n",
+        "**You should also submit this to the D2L Assignment folder.**"
+      ],
+      "metadata": {
+        "id": "py_qbi2QVcP4"
+      }
+    }
+  ]
+}
